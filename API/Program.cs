@@ -18,8 +18,8 @@ builder.Services.AddApplicationServices(config);
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
     opt.Password.RequireNonAlphanumeric = false;
-}).AddRoles<IdentityRole>().AddRoleManager<RoleManager<IdentityRole>>()
-            .AddSignInManager<SignInManager<AppUser>>().AddRoleValidator<RoleValidator<IdentityRole>>()
+}).AddRoles<AppRole>().AddRoleManager<RoleManager<AppRole>>()
+            .AddSignInManager<SignInManager<AppUser>>().AddRoleValidator<RoleValidator<AppRole>>()
             .AddEntityFrameworkStores<DataContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -32,7 +32,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = false
     };
 });
-
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -63,7 +66,7 @@ var services = scope.ServiceProvider;
 
 
 var db = services.GetRequiredService<DataContext>();
-var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
 var userManager = services.GetRequiredService<UserManager<AppUser>>();
 await Seed.SeedUsers(userManager, roleManager);
 

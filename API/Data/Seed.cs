@@ -13,7 +13,7 @@ namespace API.Data
 {
     public class Seed
     {
-        public static async Task SeedUsers(UserManager<AppUser> db, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedUsers(UserManager<AppUser> db, RoleManager<AppRole> roleManager)
         {
             if (await db.Users.AnyAsync()) return;
 
@@ -21,14 +21,16 @@ namespace API.Data
             var users = JsonSerializer.Deserialize<List<AppUser>>(userData);
             if (users == null) return;
 
-            string[] roles = { "Admin", "Manager", "Employee" };
-
-            foreach (string role in roles)
+            var roles = new List<AppRole>
             {
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                   await roleManager.CreateAsync(new IdentityRole(role));
-                }
+                new AppRole{Name = "Admin" },
+                new AppRole{Name = "Manager" },
+                new AppRole{Name = "Employee" }
+            };
+
+            foreach(var role in roles)
+            {
+                await roleManager.CreateAsync(role);
             }
 
             foreach (var user in users)
@@ -47,6 +49,7 @@ namespace API.Data
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
                 TwoFactorEnabled = false
+
             };
 
             await db.CreateAsync(admin, "Pa$$w0rd");
