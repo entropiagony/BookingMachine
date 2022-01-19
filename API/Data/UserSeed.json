@@ -1,0 +1,42 @@
+﻿[
+  {
+    "UserName": "employee",
+    "FirstName": "Edghar",
+    "LastName": "Primo",
+    "Email": "essence.zip@gmail.com",
+    "EmailConfirmed": true,
+    "PhoneNumberConfirmed": true,
+    "PhoneNumber": "+123456789",
+    "TwoFactorEnabled": false
+  },
+  {
+    "UserName": "employeee",
+    "FirstName": "Primo",
+    "LastName": "Edghar",
+    "Email": "entropiagony@gmail.com",
+    "EmailConfirmed": true,
+    "PhoneNumberConfirmed": true,
+    "PhoneNumber": "+123456789",
+    "TwoFactorEnabled": false
+  },
+  {
+    "UserName": "manager",
+    "FirstName": "John",
+    "LastName": "Johns",
+    "Email": "example@example.com",
+    "EmailConfirmed": true,
+    "PhoneNumberConfirmed": true,
+    "PhoneNumber": "+11111111",
+    "TwoFactorEnabled": false
+  },
+  {
+    "UserName": "managerr",
+    "FirstName": "Jennifer",
+    "LastName": "Aniston",
+    "Email": "example.zip@example.com",
+    "EmailConfirmed": true,
+    "PhoneNumberConfirmed": true,
+    "PhoneNumber": "+11111111",
+    "TwoFactorEnabled": false
+  }
+]
