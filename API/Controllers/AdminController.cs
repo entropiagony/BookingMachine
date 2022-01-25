@@ -1,4 +1,7 @@
-﻿using API.Entities;
+﻿
+using BusinessLogic.DTOs;
+using BusinessLogic.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,26 +11,19 @@ namespace API.Controllers
 {
     public class AdminController : BaseApiController
     {
-        private readonly UserManager<AppUser> userManager;
+        private readonly IAdminService adminService;
 
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(IAdminService adminService)
         {
-            this.userManager = userManager;
+            this.adminService = adminService;
         }
 
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("users-with-roles")]
-        public async Task<ActionResult> GetUsersWithRoles()
+        public async Task<ActionResult<IEnumerable<UserWithRolesDto>>> GetUsersWithRoles()
         {
 
-            var users = await userManager.Users.Include(r => r.UserRoles).ThenInclude(r => r.Role)
-                .OrderBy(u => u.UserName).Select(u => new
-                {
-                    u.Id,
-                    UserName = u.UserName,
-                    Roles = u.UserRoles.Select(r => r.Role.Name).ToList()
-                }).ToListAsync();
-
+            var users = await adminService.GetUsersWithRolesAsync();
 
             return Ok(users);
         }
@@ -37,25 +33,9 @@ namespace API.Controllers
         {
             var selectedRoles = roles.Split(",").ToArray();
 
-            var user = await userManager.FindByNameAsync(username);
+            var updatedRoles = await adminService.EditUserRolesAsync(username, selectedRoles);
 
-            if (user == null)
-                return NotFound("Could not found this user");
-
-            var userRoles = await userManager.GetRolesAsync(user);
-
-
-            var result = await userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
-
-            if (!result.Succeeded)
-                return BadRequest("Failed to add to roles");
-
-            result = await userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
-
-            if (!result.Succeeded)
-                return BadRequest("Failed to remove to roles");
-
-            return Ok(await userManager.GetRolesAsync(user));
+            return Ok(updatedRoles);
         }
 
     }

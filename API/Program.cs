@@ -1,7 +1,8 @@
-using API.Data;
-using API.Entities;
+
 using API.Extensions;
-using API.Services;
+using API.Filters;
+using Domain;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -37,7 +38,10 @@ builder.Services.AddAuthorization(opt =>
     opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilterAttribute>();
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -69,6 +73,6 @@ var db = services.GetRequiredService<DataContext>();
 var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
 var userManager = services.GetRequiredService<UserManager<AppUser>>();
 await Seed.SeedUsers(userManager, roleManager);
-
+await Seed.SeedFloorsAndWorkPlaces(db);
 
 app.Run();

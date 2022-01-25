@@ -1,7 +1,7 @@
-﻿using API.Data;
-using API.Interfaces;
-using API.Services;
-using API.Utilities;
+﻿using BusinessLogic.Interfaces;
+using BusinessLogic.Services;
+using BusinessLogic.Utilities;
+using Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions
@@ -13,7 +13,8 @@ namespace API.Extensions
             services.AddDbContext<DataContext>(options => options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
             services.AddScoped<ITokenService, TokenService>();
             services.AddAutoMapper(typeof(MapperProfiles).Assembly);
-
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAdminService, AdminService>();
             return services;
         }
     }
