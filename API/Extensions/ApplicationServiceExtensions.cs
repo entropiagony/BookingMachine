@@ -3,6 +3,8 @@ using BusinessLogic.Services;
 using BusinessLogic.Utilities;
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Repository.Interfaces;
+using Repository.Repositories;
 
 namespace API.Extensions
 {
@@ -15,6 +17,13 @@ namespace API.Extensions
             services.AddAutoMapper(typeof(MapperProfiles).Assembly);
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IManagerService, ManagerService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IManagerRepository, ManagerRepository>();
+            services.AddScoped<IFloorRepository, FloorRepository>();
+            services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>();
+            services.AddScoped<IBookingRepository, BookingRepository>();
+            services.AddScoped<IBookingService, BookingService>();
             return services;
         }
     }

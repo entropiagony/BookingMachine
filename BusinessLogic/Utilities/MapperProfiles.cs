@@ -14,6 +14,11 @@ namespace BusinessLogic.Utilities
         public MapperProfiles()
         {
             CreateMap<RegisterDto, AppUser>();
+            CreateMap<AppUser, ManagerDto>();
+            CreateMap<UpdateUserDto, AppUser>();
+            CreateMap<AppUser, UserInfoDto>().ForMember(dest => dest.ManagerName, opt => opt.
+            MapFrom(src => src.Manager.FirstName + " " + src.Manager.LastName));
+            CreateMap<BookingDto, Booking>().ForSourceMember(x => x.FloorId, opt => opt.DoNotValidate());
         }
     }
 }

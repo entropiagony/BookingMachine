@@ -11,7 +11,9 @@ namespace BusinessLogic.Interfaces
     public interface IAccountService
     {
         public Task<UserDto> CreateAccountAsync(RegisterDto registerDto);
-        public Task<UserDto> UpdateAccountAsync();
+        public Task UpdateAccountAsync(string userId, UpdateUserDto updateUserDto);
         public Task<UserDto> LoginAsync(LoginDto loginDto);
+
+        public Task<UserInfoDto> GetUserInfoDto(string userId);
     }
 }

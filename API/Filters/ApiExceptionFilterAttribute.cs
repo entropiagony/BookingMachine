@@ -11,7 +11,6 @@ namespace API.Filters
 
         public ApiExceptionFilterAttribute()
         {
-            // Register known exception types and handlers.
             _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
             {
                 { typeof(NotFoundException), HandleNotFoundException },
@@ -20,10 +19,6 @@ namespace API.Filters
             };
         }
 
-        /// <summary>
-        ///     
-        /// </summary>
-        /// <param name="context"></param>
         public override void OnException(ExceptionContext context)
         {
             HandleException(context);

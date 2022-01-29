@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { map, ReplaySubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from 'src/_models/user';
+import { UserInfo } from 'src/_models/user-info';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,14 @@ export class AccountService {
     Array.isArray(roles) ? user.roles = roles : user.roles.push(roles);
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
+  }
+
+  getCurrentUser() {
+    return this.http.get<UserInfo>(this.baseUrl + 'account');
+  }
+
+  updateUser(userInfo: UserInfo) {
+    return this.http.put(this.baseUrl + 'account', userInfo);
   }
 
   logout() {

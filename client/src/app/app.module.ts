@@ -21,6 +21,7 @@ import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { UserManagementComponent } from './admin/user-management/user-management.component';
 import { WorkplaceManagementComponent } from './admin/workplace-management/workplace-management.component';
 import { RolesModalComponent } from './roles-modal/roles-modal.component';
+import { AccountEditComponent } from './account/account-edit/account-edit.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { RolesModalComponent } from './roles-modal/roles-modal.component';
     AdminPanelComponent,
     UserManagementComponent,
     WorkplaceManagementComponent,
-    RolesModalComponent
+    RolesModalComponent,
+    AccountEditComponent
   ],
   imports: [
     BrowserModule,

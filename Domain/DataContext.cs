@@ -14,7 +14,7 @@ namespace Domain
         IdentityUserClaim<string>, AppUserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>,
         IdentityUserToken<string>>
     {
-        public DataContext(DbContextOptions options) : base(options)
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
 
         }
