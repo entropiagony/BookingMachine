@@ -15,6 +15,7 @@ namespace BusinessLogic.DTOs
         [StringLength(8, MinimumLength = 4)]
         [Required]
         public string Password { get; set; }
+        [EmailAddress]
         [Required]
         public string Email { get; set; }
         [Required]
@@ -23,6 +24,7 @@ namespace BusinessLogic.DTOs
         public string LastName { get; set; }
         [Required]
         public string ManagerId { get; set; }
+        [Phone]
         [Required]
         public string PhoneNumber { get; set; }
     }

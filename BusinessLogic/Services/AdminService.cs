@@ -36,13 +36,13 @@ namespace BusinessLogic.Services
             if (!result.Succeeded)
                 throw new BadRequestException("Failed to add to roles");
 
-            result = await unitOfWork.UserManager.RemoveFromRolesAsync(user, userRoles.Except(roles));
+            var roleResult = await unitOfWork.UserManager.RemoveFromRolesAsync(user, userRoles.Except(roles));
 
-            if (!result.Succeeded)
+            if (!roleResult.Succeeded)
                 throw new BadRequestException("Failed to remove from roles");
 
 
-            return await unitOfWork.UserManager.GetRolesAsync(user);
+            return roles;
 
         }
 

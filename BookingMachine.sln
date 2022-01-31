@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogic", "BusinessLogic\BusinessLogic.csproj", "{13150004-6C06-4247-8610-C9FF672C043A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{AFBFDBA7-380E-4727-9661-3C0EC1102A9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{AFBFDBA7-380E-4727-9661-3C0EC1102A9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingMachine.Tests", "BookingMachine.Tests\BookingMachine.Tests.csproj", "{E402C50F-7CAF-417D-B349-59ED18F9DADF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{AFBFDBA7-380E-4727-9661-3C0EC1102A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFBFDBA7-380E-4727-9661-3C0EC1102A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFBFDBA7-380E-4727-9661-3C0EC1102A9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E402C50F-7CAF-417D-B349-59ED18F9DADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E402C50F-7CAF-417D-B349-59ED18F9DADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E402C50F-7CAF-417D-B349-59ED18F9DADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E402C50F-7CAF-417D-B349-59ED18F9DADF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

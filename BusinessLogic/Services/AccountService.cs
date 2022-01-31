@@ -69,7 +69,7 @@ namespace BusinessLogic.Services
         {
             var user = await unitOfWork.UserManager.Users.Include(x => x.Manager).FirstOrDefaultAsync(x => x.Id ==userId);
             if (user == null)
-                throw new BadRequestException("Can't find specified user");
+                throw new NotFoundException("Can't find specified user");
 
             return mapper.Map<UserInfoDto>(user);
         }

@@ -40,15 +40,21 @@ namespace BusinessLogic.Services
             if (workPlace == null)
                 throw new NotFoundException("Can't find specified work place");
 
-
             if (workPlace.FloorId != bookingDto.FloorId)
                 throw new BadRequestException("Your workplace doesn't belong to your floor");
+
+
+
 
             var booking = mapper.Map<Booking>(bookingDto);
 
             booking.Status = BookingStatus.Pending;
             booking.ManagerId = user.ManagerId;
             booking.EmployeeId = user.Id;
+
+
+            if (await unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking))
+                throw new BadRequestException("You have already booked this place for this date");
 
             var bookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
 
