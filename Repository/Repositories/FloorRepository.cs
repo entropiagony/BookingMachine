@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Common.Exceptions;
+using Domain;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Repository.Interfaces;
@@ -19,6 +20,25 @@ namespace Repository.Repositories
             this.db = db;
         }
 
+        public async Task<Floor> CreateAsync(int floorNumber)
+        {
+            var floor = new Floor { FloorNumber = floorNumber };
+
+            if (await db.Floors.AnyAsync(x => x.FloorNumber == floorNumber))
+                throw new BadRequestException("This floor already exists");
+
+            await db.Floors.AddAsync(floor);
+            return floor;
+        }
+
+        public async Task DeleteFloorAsync(int id)
+        {
+            var floor = await db.Floors.FirstOrDefaultAsync(x => x.Id == id);
+            if (floor == null)
+                throw new NotFoundException("Specified floor doesn't exist");
+            db.Floors.Remove(floor);
+        }
+
         public async Task<Floor> GetFloorAsync(int id)
         {
             return await db.Floors.Include(x => x.WorkPlaces).FirstOrDefaultAsync(x => x.Id == id);
@@ -27,6 +47,11 @@ namespace Repository.Repositories
         public async Task<IEnumerable<Floor>> GetFloorsAsync()
         {
             return await db.Floors.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Floor>> GetFloorsWithWorkPlacesAsync()
+        {
+            return await db.Floors.Include(x => x.WorkPlaces).ToListAsync();
         }
     }
 }

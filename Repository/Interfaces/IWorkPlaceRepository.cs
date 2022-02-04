@@ -10,5 +10,7 @@ namespace Repository.Interfaces
     public interface IWorkPlaceRepository
     {
         public Task<WorkPlace> GetWorkPlaceAsync(int id);
+        public Task<IEnumerable<WorkPlace>> CreateWorkPlaces(int quantity, int floorId);
+        public Task DeleteWorkPlaceAsync(int id);
     }
 }

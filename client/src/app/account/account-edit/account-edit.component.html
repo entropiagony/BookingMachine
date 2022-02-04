@@ -34,7 +34,7 @@
 
             </div>
             <div class="card-footer">
-                <button [disabled]="!registerForm.valid || !registerForm.touched" form="editForm" type="submit" class="btn btn-success  btn-block">Save changes</button>
+                <button [disabled]="!accountForm.valid || !accountForm.touched" form="editForm" type="submit" class="btn btn-success  btn-block">Save changes</button>
 
             </div>
         </div>
@@ -42,13 +42,13 @@
     <div class="col-8">
 
 
-        <form id="editForm" [formGroup]="registerForm" #editForm="ngForm" (ngSubmit)="registerForm.valid && updateUser()" autocomplete="off">
+        <form id="editForm" [formGroup]="accountForm" #editForm="ngForm" (ngSubmit)="accountForm.valid && updateUser()" autocomplete="off">
             <h5>First Name</h5>
-            <app-text-input [formControl]='$any(registerForm).controls["firstName"]' [label]='"First Name"'></app-text-input>
+            <app-text-input [formControl]='$any(accountForm).controls["firstName"]' [label]='"First Name"'></app-text-input>
             <h5>Last Name</h5>
-            <app-text-input [formControl]='$any(registerForm).controls["lastName"]' [label]='"Last Name"'></app-text-input>
+            <app-text-input [formControl]='$any(accountForm).controls["lastName"]' [label]='"Last Name"'></app-text-input>
             <h5>Phone Number</h5>
-            <app-text-input [formControl]='$any(registerForm).controls["phoneNumber"]' [label]='"Phone Number"'></app-text-input>
+            <app-text-input [formControl]='$any(accountForm).controls["phoneNumber"]' [label]='"Phone Number"'></app-text-input>
 
             <div class="container row mt-2" *ngIf="validationErrors.length > 0">
                 <ul class="text-danger">

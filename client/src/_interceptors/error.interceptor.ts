@@ -21,6 +21,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
           switch (error.status) {
             case 400:
+              console.log(error);
               if (error.error.errors) {
                 const modalStateErrors = [];
                 for (const key in error.error.errors) {
@@ -31,7 +32,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                 throw modalStateErrors.flat();
               } else if (typeof (error.error) === 'object') {
 
-                this.toastr.error(error.statusText, error.status);
+                this.toastr.error(error.error.detail, error.status);
               } else {
                 this.toastr.error(error.error, error.status);
               }

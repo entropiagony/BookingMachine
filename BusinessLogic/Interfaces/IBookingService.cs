@@ -9,6 +9,7 @@ namespace BusinessLogic.Interfaces
 {
     public interface IBookingService
     {
-        public Task CreateBookingAsync(BookingDto bookingDto, string userId);
+        public Task<EmployeeBookingDto> CreateBookingAsync(CreateBookingDto bookingDto, string userId);
+        public Task<IEnumerable<EmployeeBookingDto>> GetEmployeeBookingsAsync(string employeeId);
     }
 }

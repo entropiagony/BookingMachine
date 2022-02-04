@@ -14,7 +14,7 @@ import { AccountService } from 'src/_services/account-service.service';
 })
 export class AccountEditComponent implements OnInit {
   @ViewChild('editForm') editForm!: NgForm;
-  registerForm!: FormGroup;
+  accountForm!: FormGroup;
   validationErrors: string[] = [];
   phonePattern = "^((\\+91-?)|0)?[0-9]{10}$";
   userInfo!: UserInfo;
@@ -38,16 +38,16 @@ export class AccountEditComponent implements OnInit {
 
 
   updateUser() {
-    this.accountService.updateUser(this.registerForm.value).subscribe(() => {
+    this.accountService.updateUser(this.accountForm.value).subscribe(() => {
       this.toastr.success("Profile updated successfully.");
-      this.editForm.reset(this.registerForm.value);
+      this.editForm.reset(this.accountForm.value);
       
     });
 
   }
 
   initializeForm() {
-    this.registerForm = this.fb.group({
+    this.accountForm = this.fb.group({
       firstName: [this.userInfo.firstName, Validators.required],
       lastName: [this.userInfo.lastName, Validators.required],
       phoneNumber: [this.userInfo.phoneNumber, [Validators.required, Validators.pattern(this.phonePattern)]]

@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.Interfaces
+namespace BusinessLogic.Interfaces
 {
-    public interface IFloorRepository
+    public interface IFloorService
     {
         public Task<IEnumerable<Floor>> GetFloorsAsync();
-        public Task<Floor> GetFloorAsync(int id);
-        public Task<IEnumerable<Floor>> GetFloorsWithWorkPlacesAsync();
-        public Task DeleteFloorAsync(int id);
+        public Task DeleteAsync(int id);
         public Task<Floor> CreateAsync(int floorNumber);
     }
 }

@@ -20,5 +20,6 @@ namespace API.Controllers
 
             return Ok(managers);
         }
+
     }
 }

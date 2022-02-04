@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.DTOs
 {
-    public class BookingDto
+    public class CreateBookingDto
     {
         [Required]
         public int WorkPlaceId { get; set; }

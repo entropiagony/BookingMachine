@@ -25,15 +25,17 @@ namespace Repository.Repositories
             db.Bookings.Add(booking);
         }
 
-        public async Task<IEnumerable<Booking>> GetBookingsAsync()
-        {
-            return await db.Bookings.ToListAsync();
-        }
+        
 
         public async Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date)
         {
             return await db.Bookings.Where(x => x.BookingDate.Date == date.Date
             || x.Status == BookingStatus.Approved).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Booking>> GetEmployeeBookingsAsync(string employeeId)
+        {
+            return await db.Bookings.Where(x => x.EmployeeId == employeeId).ToListAsync();
         }
 
         public async Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking)

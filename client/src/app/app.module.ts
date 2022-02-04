@@ -14,7 +14,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { HomeComponent } from './home/home.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { RegisterComponent } from './register/register.component';
-import { TextInputComponent } from './text-input/text-input.component';
+import { TextInputComponent } from './forms/text-input/text-input.component';
 import { ErrorInterceptor } from 'src/_interceptors/error.interceptor';
 import { JwtInterceptor } from 'src/_interceptors/jwt.interceptor';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
@@ -22,6 +22,9 @@ import { UserManagementComponent } from './admin/user-management/user-management
 import { WorkplaceManagementComponent } from './admin/workplace-management/workplace-management.component';
 import { RolesModalComponent } from './roles-modal/roles-modal.component';
 import { AccountEditComponent } from './account/account-edit/account-edit.component';
+import { BookingComponent } from './booking/booking.component';
+import { DateInputComponent } from './forms/date-input/date-input.component';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 @NgModule({
   declarations: [
@@ -36,7 +39,9 @@ import { AccountEditComponent } from './account/account-edit/account-edit.compon
     UserManagementComponent,
     WorkplaceManagementComponent,
     RolesModalComponent,
-    AccountEditComponent
+    AccountEditComponent,
+    BookingComponent,
+    DateInputComponent
   ],
   imports: [
     BrowserModule,
@@ -49,13 +54,14 @@ import { AccountEditComponent } from './account/account-edit/account-edit.compon
     },
     ),
     FormsModule,
+    BsDatepickerModule.forRoot(),
     ReactiveFormsModule,
     TabsModule.forRoot(),
     ModalModule.forRoot()
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

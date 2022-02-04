@@ -10,7 +10,7 @@ namespace Repository.Interfaces
     public interface IBookingRepository
     {
         public void CreateBooking(Booking booking);
-        public Task<IEnumerable<Booking>> GetBookingsAsync();
+        public Task<IEnumerable<Booking>> GetEmployeeBookingsAsync(string employeeId);
         public Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date);
         public Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking);
     }

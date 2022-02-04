@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-4">
+        <form [formGroup]="bookingForm" (ngSubmit)="bookingForm.valid && book()" autocomplete="off">
+            <h2 class="text-center text-primary">Create a booking</h2>
+            <hr>
+
+            <app-date-input [formControl]='$any(bookingForm).controls["bookingDate"]' [label]='"Booking date"'></app-date-input>
+
+            <select (change)="changeFloor($event)" class="mb-2 form-control" formControlName="floorId">
+                <option disabled value="">Choose your floor</option>
+                <option *ngFor="let floor of floors" [ngValue]="floor.id">Floor number {{floor.floorNumber}}</option>
+             </select>
+
+            <select *ngIf="selectedFloor" class="mb-2 form-control" formControlName="workPlaceId">
+                <option disabled value="">Choose your workplace</option>
+                <option *ngFor="let workplace of selectedFloor.workPlaces" [ngValue]="workplace.id">workplace number {{workplace.id}}</option>
+             </select>
+
+            <div class="container row mt-2" *ngIf="validationErrors.length > 0">
+                <ul class="text-danger">
+                    <li *ngFor="let error of validationErrors;">
+                        {{error}}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="form-group text-center">
+                <button [disabled]="!bookingForm.valid" class="btn btn-success me-2" type="submit">Register</button>
+
+            </div>
+        </form>
+    </div>
+    <div class="col-8">
+        <h2 class="text-center text-primary">Here is the list of all your bookings:</h2>
+        <h4 *ngIf="bookings.length == 0" class="mt-2">Seems like you don't have any bookings... Use your chance and book yourself a workplace right now!</h4>
+
+        <table *ngIf="bookings.length > 0" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">WorkPlace Id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let booking of bookings">
+
+                    <th scope="row">{{booking.id}}</th>
+                    <td>{{booking.workPlaceId}}</td>
+                    <td>{{booking.bookingDate | date}}</td>
+                    <td>{{booking.status}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

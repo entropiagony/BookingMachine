@@ -4,12 +4,16 @@
         <a class="navbar-brand" routerLink="/" routerLinkActive="active">Booking Machine</a>
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
             <ng-container *ngIf="accountService.currentUser$ | async">
-                <li class="nav-item">
+                <li *appHasRole="['Employee']" class="nav-item">
                     <a class="nav-link " routerLink="/book" routerLinkActive="active">Book</a>
                 </li>
 
                 <li *appHasRole="['Admin']" class="nav-item">
                     <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
+                </li>
+
+                <li *appHasRole="['Manager']" class="nav-item">
+                    <a class="nav-link" routerLink="/manage" routerLinkActive="active">Manage bookings</a>
                 </li>
             </ng-container>
         </ul>

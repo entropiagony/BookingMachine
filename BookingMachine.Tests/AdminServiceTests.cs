@@ -3,8 +3,8 @@ using Common.Exceptions;
 using Domain.Entities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
+using Moq;
 using Repository.Interfaces;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -55,15 +55,14 @@ namespace BookingMachine.Tests
             var newRoles = new[] { "Employee" };
             var actualRoles = new[] { "Employee", "Manager" };
             var returnUser = new AppUser { UserName = username };
-            var successIdentityResult = IdentityResult.Success;
+            var successIdentityResult = new IdentityResult();
+            successIdentityResult = IdentityResult.Success;
             var sut = new AdminService(unitOfWork);
-
-            Console.WriteLine(successIdentityResult.Succeeded);
 
             A.CallTo(() => unitOfWork.UserManager.FindByNameAsync(username)).Returns(returnUser);
             A.CallTo(() => unitOfWork.UserManager.GetRolesAsync(returnUser)).Returns(actualRoles);
             A.CallTo(() => unitOfWork.UserManager.AddToRolesAsync(A<AppUser>.Ignored, A<string[]>.Ignored))
-                .Returns(Task.FromResult(IdentityResult.Success));
+                .Returns(Task.FromResult(successIdentityResult));
             A.CallTo(() => unitOfWork.UserManager.RemoveFromRolesAsync(returnUser, actualRoles.Except(newRoles)))
                 .Returns(Task.FromResult(IdentityResult.Failed()));
 
@@ -98,12 +97,29 @@ namespace BookingMachine.Tests
         [Fact]
         public async Task plswork()
         {
-            var unitOfWork = A.Fake<IUnitOfWork>();
-            var sut = new AdminService(unitOfWork);
-            var success = IdentityResult.Success;
-            // A.CallTo(() => unitOfWork.UserManager.AddToRolesAsync(A<AppUser>.Ignored, A<string[]>.Ignored)).Returns(Task.FromResult(success));
-            await sut.EditUserRolesAsync("test", new[] { "123", "1234" });
+            var username = "employee";
+            var newRoles = new[] { "Manager", "Employee" };
+            var actualRoles = new[] { "Employee" };
+            var returnUser = new AppUser { UserName = username };
+            var successIdentityResult = new IdentityResult();
+            successIdentityResult = IdentityResult.Success;
+            var unitOfWork = new Mock<IUnitOfWork>();
+            var store = new Mock<IUserStore<AppUser>>();
+            var mgr = new Mock<UserManager<AppUser>>(store.Object, null, null, null, null, null, null, null, null);
+            unitOfWork.SetupGet(x => x.UserManager).Returns(mgr.Object);
+            unitOfWork.Setup(a => a.UserManager.FindByNameAsync(username)).ReturnsAsync(returnUser);
+            unitOfWork.Setup(a => a.UserManager.GetRolesAsync(returnUser)).ReturnsAsync(actualRoles);
+            unitOfWork.Setup(a => a.UserManager.AddToRolesAsync(returnUser, newRoles.Except(actualRoles)))
+                .ReturnsAsync(successIdentityResult);
+            unitOfWork.Setup(a => a.UserManager.RemoveFromRolesAsync(returnUser, actualRoles.Except(newRoles)))
+                .Returns(Task.FromResult(IdentityResult.Success));
 
+            var sut = new AdminService(unitOfWork.Object);
+            var resultRoles = await sut.EditUserRolesAsync(username, newRoles);
+            Assert.Equal(newRoles, resultRoles);
+            Assert.Equal(newRoles.Length, resultRoles.Count);
         }
+
+        
     }
 }

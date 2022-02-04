@@ -1,7 +1,11 @@
-﻿using Domain.Entities;
+﻿using Common;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +41,9 @@ namespace Domain
             modelBuilder.Entity<ManagerEmployee>().HasOne(e => e.Manager).WithMany(m => m.Employees).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Booking>().Property(b => b.Status).HasConversion<string>();
+
+            modelBuilder.ApplyUtcDateTimeConverter();
         }
+
     }
 }

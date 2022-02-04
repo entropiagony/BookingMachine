@@ -24,9 +24,9 @@ namespace BusinessLogic.Services
             this.mapper = mapper;
         }
 
-        public async Task CreateBookingAsync(BookingDto bookingDto, string userId)
+        public async Task<EmployeeBookingDto> CreateBookingAsync(CreateBookingDto bookingDto, string userId)
         {
-            bookingDto.BookingDate = bookingDto.BookingDate.Date;
+            bookingDto.BookingDate = bookingDto.BookingDate.AddHours(3).Date;
             var user = await unitOfWork.UserManager.FindByIdAsync(userId);
             var floor = await unitOfWork.FloorRepository.GetFloorAsync(bookingDto.FloorId);
             var workPlace = await unitOfWork.WorkPlaceRepository.GetWorkPlaceAsync(bookingDto.WorkPlaceId);
@@ -43,7 +43,8 @@ namespace BusinessLogic.Services
             if (workPlace.FloorId != bookingDto.FloorId)
                 throw new BadRequestException("Your workplace doesn't belong to your floor");
 
-
+            if (user.ManagerId == null)
+                throw new BadRequestException("You don't have a manager, so you can't book");
 
 
             var booking = mapper.Map<Booking>(bookingDto);
@@ -68,11 +69,23 @@ namespace BusinessLogic.Services
             unitOfWork.BookingRepository.CreateBooking(booking);
 
             if (await unitOfWork.Complete())
-                return;
+                return mapper.Map<EmployeeBookingDto>(booking);
 
             throw new BadRequestException("Bad request");
             
 
+        }
+
+        public async Task<IEnumerable<EmployeeBookingDto>> GetEmployeeBookingsAsync(string employeeId)
+        {
+            var employee = await unitOfWork.UserManager.FindByIdAsync(employeeId);
+            if (employee == null)
+                throw new NotFoundException("Specified employee doesn't exist");
+
+            var bookings = await unitOfWork.BookingRepository.GetEmployeeBookingsAsync(employeeId);
+            var bookingDtos = mapper.Map<IEnumerable<Booking>, IEnumerable<EmployeeBookingDto>>(bookings);
+
+            return bookingDtos;
         }
     }
 }

@@ -17,11 +17,19 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateBooking(BookingDto bookingDto)
+        public async Task<ActionResult<EmployeeBookingDto>> CreateBooking(CreateBookingDto bookingDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            await bookingService.CreateBookingAsync(bookingDto, userId);
-            return Ok();
-        } 
+            var result = await bookingService.CreateBookingAsync(bookingDto, userId);
+            return Ok(result);
+        }
+        
+        [HttpGet("employee")]
+        public async Task<ActionResult<IEnumerable<EmployeeBookingDto>>> GetBookingsAsEmployee()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var bookings = await bookingService.GetEmployeeBookingsAsync(userId);
+            return Ok(bookings);
+        }
     }
 }

@@ -24,6 +24,8 @@ namespace API.Extensions
             services.AddScoped<IWorkPlaceRepository, WorkPlaceRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IFloorService, FloorService>();
+            services.AddScoped<IWorkPlaceService, WorkPlaceService>();
             return services;
         }
     }
