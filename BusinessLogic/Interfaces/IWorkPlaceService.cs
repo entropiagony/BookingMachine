@@ -10,6 +10,6 @@ namespace BusinessLogic.Interfaces
     public interface IWorkPlaceService
     {
         public Task<IEnumerable<WorkPlace>> CreateWorkPlacesAsync(int quantity, int floorId);
-        public Task DeleteWorkplaceAsync(int id);
+        public Task DeleteWorkPlaceAsync(int id);
     }
 }

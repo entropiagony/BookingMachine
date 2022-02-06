@@ -2,11 +2,6 @@
 using Common.Exceptions;
 using Domain.Entities;
 using Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLogic.Services
 {
@@ -23,6 +18,7 @@ namespace BusinessLogic.Services
         {
             if (floorNumber <= 0)
                 throw new BadRequestException("Floor number should be greater or equal to zero");
+
             var floor = await unitOfWork.FloorRepository.CreateAsync(floorNumber);
 
             if (await unitOfWork.Complete())

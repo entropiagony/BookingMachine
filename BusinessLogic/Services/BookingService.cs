@@ -26,7 +26,7 @@ namespace BusinessLogic.Services
 
         public async Task<EmployeeBookingDto> CreateBookingAsync(CreateBookingDto bookingDto, string userId)
         {
-            bookingDto.BookingDate = bookingDto.BookingDate.AddHours(3).Date;
+            bookingDto.BookingDate = bookingDto.BookingDate.Date;
             var user = await unitOfWork.UserManager.FindByIdAsync(userId);
             var floor = await unitOfWork.FloorRepository.GetFloorAsync(bookingDto.FloorId);
             var workPlace = await unitOfWork.WorkPlaceRepository.GetWorkPlaceAsync(bookingDto.WorkPlaceId);
@@ -46,25 +46,22 @@ namespace BusinessLogic.Services
             if (user.ManagerId == null)
                 throw new BadRequestException("You don't have a manager, so you can't book");
 
-
             var booking = mapper.Map<Booking>(bookingDto);
 
             booking.Status = BookingStatus.Pending;
             booking.ManagerId = user.ManagerId;
             booking.EmployeeId = user.Id;
 
-
             if (await unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking))
-                throw new BadRequestException("You have already booked this place for this date");
+                throw new BadRequestException("You have already booked workplace for this date");
 
             var bookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
 
             if (bookings.Any(x => x.WorkPlaceId == workPlace.Id))
                 throw new BadRequestException("This work place is already booked");
 
-            if (bookings.Count() > floor.WorkPlaces.Count * 0.2)
+            if (bookings.Count() >= floor.WorkPlaces.Count * 0.2)
                 throw new BadRequestException("Due to COVID-19 restrictions you cannot book this");
-
 
             unitOfWork.BookingRepository.CreateBooking(booking);
 
@@ -72,8 +69,6 @@ namespace BusinessLogic.Services
                 return mapper.Map<EmployeeBookingDto>(booking);
 
             throw new BadRequestException("Bad request");
-            
-
         }
 
         public async Task<IEnumerable<EmployeeBookingDto>> GetEmployeeBookingsAsync(string employeeId)

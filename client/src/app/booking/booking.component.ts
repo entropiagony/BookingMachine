@@ -36,17 +36,12 @@ export class BookingComponent implements OnInit {
       workPlaceId: ['', Validators.required],
       bookingDate: ['', Validators.required]
     })
-
-    this.bookingForm.controls['password'].valueChanges.subscribe(() => {
-      this.bookingForm.controls['confirmPassword'].updateValueAndValidity();
-    })
   }
 
 
   book() {
     this.bookingService.createBooking(this.bookingForm.value).subscribe(response => {
       this.toastr.success("Booking successfully created!");
-      console.log(response);
       this.bookings.push(response);
     }, error => {
       this.validationErrors = error;
@@ -71,5 +66,5 @@ export class BookingComponent implements OnInit {
     this.selectedFloor = this.floors.find(x => x.id == id)!;
   }
 
- 
+
 }

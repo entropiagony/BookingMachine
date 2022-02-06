@@ -26,7 +26,7 @@ namespace API.Controllers
         [HttpDelete]
         public async Task<ActionResult> DeleteWorkPlace(int id)
         {
-            await workPlaceService.DeleteWorkplaceAsync(id);
+            await workPlaceService.DeleteWorkPlaceAsync(id);
             return Ok();
         }
     }

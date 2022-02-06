@@ -41,7 +41,7 @@ namespace Repository.Repositories
         public async Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking)
         {
             return await db.Bookings.AnyAsync(x => x.BookingDate == booking.BookingDate &&
-            x.EmployeeId == user.Id && x.WorkPlaceId == booking.WorkPlaceId);
+            x.EmployeeId == user.Id);
         }
     }
 }

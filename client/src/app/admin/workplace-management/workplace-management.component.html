@@ -1,1 +1,65 @@
-<p>workplace-management works!</p>
+<div *ngIf="floors" class="row mt-4 mb-8">
+    <div class="col-6">
+        <h3>Total number of floors: {{floors.length}}</h3>
+    </div>
+    <div class="col-6">
+        <h3>Total number of workplaces: {{workPlaceCount}} </h3>
+    </div>
+</div>
+<div class="row mt-4">
+
+    <form [formGroup]="floorForm" (ngSubmit)="floorForm.valid && deleteWorkPlace()" autocomplete="off">
+        <div>
+            <h2 class="text-primary">
+                Create a new floor by number. </h2>
+            <hr>
+            <input type="number" class="form-control" [(ngModel)]="floorNumber" [ngModelOptions]="{standalone: true}">
+            <div class="form-group mt-2 text-end">
+                <span *ngIf="floorNumber<=0" class="text-danger me-2">Please enter a floor number greater than zero.</span>
+                <button [disabled]="floorNumber <= 0 || floorNumber === undefined" class="btn btn-success me-2" (click)="addFloor()" type="button">Create floor</button>
+
+            </div>
+        </div>
+        <h2 class="text-primary">Select a floor</h2>
+        <hr>
+        <select (change)="changeFloor($event)" class="mb-2 form-control" formControlName="floorId">
+                <option disabled value="">Choose your floor</option>
+                <option *ngFor="let floor of floors" [ngValue]="floor.id">Floor number {{floor.floorNumber}}</option>
+             </select>
+
+
+        <div *ngIf="selectedFloor">
+
+            <select class="mb-2 form-control" formControlName="workPlaceId">
+                <option disabled value="">Choose workplace that you want to delete</option>
+                <option *ngFor="let workplace of selectedFloor.workPlaces" [ngValue]="workplace.id">workplace number {{workplace.id}}</option>
+             </select>
+
+            <div class="form-group text-end">
+                <button type="button" class="btn btn-danger me-2" (click)="deleteFloor()">Delete selected floor</button>
+                <button [disabled]="!floorForm.valid" class="btn btn-success me-2" type="submit">Delete selected workplace</button>
+            </div>
+
+
+            <h2 class="text-primary">
+                Add an amount of workplaces to selected floor.
+            </h2>
+            <hr>
+            <input type="number" class="form-control" [(ngModel)]="quantity" [ngModelOptions]="{standalone: true}">
+            <div class="form-group mt-2 text-end">
+                <span *ngIf="quantity <= 0" class="text-danger me-2">Please enter a quantity greater than zero.</span>
+                <button [disabled]="quantity <= 0 || quantity === undefined" class="btn btn-success me-2" (click)="addWorkPlaces()" type="button">Add workplaces</button>
+
+            </div>
+
+
+
+
+
+
+
+
+        </div>
+    </form>
+
+</div>

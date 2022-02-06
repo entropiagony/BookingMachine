@@ -34,7 +34,7 @@ namespace BusinessLogic.Services
             throw new BadRequestException("Failed to create workplaces");
         }
 
-        public async Task DeleteWorkplaceAsync(int id)
+        public async Task DeleteWorkPlaceAsync(int id)
         {
             await unitOfWork.WorkPlaceRepository.DeleteWorkPlaceAsync(id);
             if (await unitOfWork.Complete())

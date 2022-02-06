@@ -36,7 +36,7 @@ namespace BusinessLogic.Services
                 throw new BadRequestException("Username already exists.");
 
             var user = mapper.Map<AppUser>(registerDto);
-            
+
             var manager = await unitOfWork.UserManager.Users.
                 Include(e => e.Employees).SingleOrDefaultAsync(u => u.Id == user.ManagerId);
 
@@ -67,7 +67,7 @@ namespace BusinessLogic.Services
 
         public async Task<UserInfoDto> GetUserInfoDto(string userId)
         {
-            var user = await unitOfWork.UserManager.Users.Include(x => x.Manager).FirstOrDefaultAsync(x => x.Id ==userId);
+            var user = await unitOfWork.UserManager.Users.Include(x => x.Manager).FirstOrDefaultAsync(x => x.Id == userId);
             if (user == null)
                 throw new NotFoundException("Can't find specified user");
 
@@ -96,6 +96,11 @@ namespace BusinessLogic.Services
         public async Task UpdateAccountAsync(string userId, UpdateUserDto updateUserDto)
         {
             var user = await unitOfWork.UserManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new NotFoundException("User doesn't exist");
+            }
 
             mapper.Map(updateUserDto, user);
 
