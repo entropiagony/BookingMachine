@@ -11,5 +11,11 @@ namespace BusinessLogic.Interfaces
     {
         public Task<EmployeeBookingDto> CreateBookingAsync(CreateBookingDto bookingDto, string userId);
         public Task<IEnumerable<EmployeeBookingDto>> GetEmployeeBookingsAsync(string employeeId);
+        public Task<AdminBookingDto> GetAdminBookingDto(int bookingId);
+        public Task<ManagerBookingDto> GetManagerBookingDto(int bookingId);
+        public Task<string> GetIdOfBookingManager(int bookingId);
+        public Task<string> GetIdOfBookingEmployee(int bookingId);
+        public Task<IEnumerable<ManagerBookingDto>> GetManagerPendingBookings(string managerId);
+        public Task<IEnumerable<AdminBookingDto>> GetAdminBookingDtos();
     }
 }

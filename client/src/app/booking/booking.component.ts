@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs';
 import { EmployeeBooking } from 'src/_models/employee-booking';
 import { Floor } from 'src/_models/floor';
 import { Manager } from 'src/_models/manager';
@@ -20,6 +21,7 @@ export class BookingComponent implements OnInit {
   floors: Floor[] = [];
   selectedFloor!: Floor;
   bookings: EmployeeBooking[] = [];
+  noBookings = false;
 
   constructor(private floorService: FloorService, private toastr: ToastrService,
     private fb: FormBuilder, private bookingService: BookingService) { }
@@ -27,6 +29,9 @@ export class BookingComponent implements OnInit {
   ngOnInit(): void {
     this.getFloors();
     this.getBookings();
+    this.listenToNewBookings();
+    this.listenToApprovedBookings();
+    this.listenToDeclinedBookings();
     this.initializeForm();
   }
 
@@ -40,13 +45,10 @@ export class BookingComponent implements OnInit {
 
 
   book() {
-    this.bookingService.createBooking(this.bookingForm.value).subscribe(response => {
-      this.toastr.success("Booking successfully created!");
-      this.bookings.push(response);
-    }, error => {
-      this.validationErrors = error;
-    }
-    );
+    this.bookingService.createBooking(this.bookingForm.value).then(() => {
+      if (this.noBookings)
+        this.noBookings = false;
+    })
   }
 
   getFloors() {
@@ -58,6 +60,7 @@ export class BookingComponent implements OnInit {
   getBookings() {
     this.bookingService.getEmployeeBookings().subscribe(bookings => {
       this.bookings = bookings;
+      this.noBookings = bookings.length == 0;
     })
   }
 
@@ -66,5 +69,29 @@ export class BookingComponent implements OnInit {
     this.selectedFloor = this.floors.find(x => x.id == id)!;
   }
 
+  listenToNewBookings() {
+    this.bookingService.employeeBookings$.subscribe(bookings => {
+      if (bookings[bookings.length - 1])
+        this.bookings.push(bookings[bookings.length - 1]);
+    })
+  }
+
+  listenToApprovedBookings() {
+    this.bookingService.approvedBookingIds$.subscribe(id => {
+      this.bookings.forEach(element => {
+        if (element.id == id)
+          element.status = "Approved";
+      })
+    })
+  }
+
+  listenToDeclinedBookings() {
+    this.bookingService.declinedBookingIds$.subscribe(id => {
+      this.bookings.forEach(element => {
+        if (element.id == id)
+          element.status = "Declined";
+      })
+    })
+  }
 
 }

@@ -32,9 +32,9 @@
     </div>
     <div class="col-8">
         <h2 class="text-center text-primary">Here is the list of all your bookings:</h2>
-        <h4 *ngIf="bookings.length == 0" class="mt-2">Seems like you don't have any bookings... Use your chance and book yourself a workplace right now!</h4>
+        <h4 *ngIf="noBookings" class="mt-2">Seems like you don't have any bookings... Use your chance and book yourself a workplace right now!</h4>
 
-        <table *ngIf="bookings.length > 0" class="table">
+        <table *ngIf="!noBookings" class="table">
             <thead>
                 <tr>
                     <th scope="col">Id</th>
@@ -51,6 +51,7 @@
                     <td>{{booking.bookingDate | date}}</td>
                     <td>{{booking.status}}</td>
                 </tr>
+
             </tbody>
         </table>
     </div>

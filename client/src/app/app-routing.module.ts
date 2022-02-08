@@ -7,25 +7,32 @@ import { AccountEditComponent } from './account/account-edit/account-edit.compon
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { BookingComponent } from './booking/booking.component';
 import { HomeComponent } from './home/home.component';
+import { ManagerComponent } from './manager/manager.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-{
-  path: '',
-  runGuardsAndResolvers: "always",
-  canActivate: [AuthGuard],
-  children: [
-    { path: 'admin', component: AdminPanelComponent, canActivate: [RoleGuard],
-    data: { roles: ['Admin'] } },
-    { path: 'account', component: AccountEditComponent, resolve: { userInfo: UserInfoResolver } },
-    {
-      path: 'book', component: BookingComponent, canActivate: [RoleGuard],
-      data: { roles: ['Employee'] }
-    }
-  ]
-},
-{ path: '**', component: NotFoundComponent, pathMatch: 'full' }
+  {
+    path: '',
+    runGuardsAndResolvers: "always",
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'admin', component: AdminPanelComponent, canActivate: [RoleGuard],
+        data: { roles: ['Admin'] }
+      },
+      { path: 'account', component: AccountEditComponent, resolve: { userInfo: UserInfoResolver } },
+      {
+        path: 'book', component: BookingComponent, canActivate: [RoleGuard],
+        data: { roles: ['Employee'] }
+      },
+      {
+        path: 'manage', component: ManagerComponent, canActivate: [RoleGuard],
+        data: { roles: ['Manager'] }
+      }
+    ]
+  },
+  { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 
 ];
 

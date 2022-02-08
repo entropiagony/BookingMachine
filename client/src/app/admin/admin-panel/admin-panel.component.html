@@ -1,12 +1,17 @@
-<h2>Admin panel</h2>
+<h2 class="text-center">Admin panel</h2>
 <div class="tab-panel">
     <tabset class="member-tabset">
-        <tab heading="User management" *appHasRole="['Admin']">
+        <tab heading="Booking live monitoring">
+            <div class="container">
+                <app-booking-monitoring></app-booking-monitoring>
+            </div>
+        </tab>
+        <tab heading="User management">
             <div class="container">
                 <app-user-management></app-user-management>
             </div>
         </tab>
-        <tab heading="Workplace management" *appHasRole="['Admin']">
+        <tab heading="Workplace management">
             <div class="container">
                 <app-workplace-management></app-workplace-management>
             </div>

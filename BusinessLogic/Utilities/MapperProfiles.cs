@@ -18,8 +18,10 @@ namespace BusinessLogic.Utilities
             CreateMap<UpdateUserDto, AppUser>();
             CreateMap<AppUser, UserInfoDto>().ForMember(dest => dest.ManagerName, opt => opt.
             MapFrom(src => src.Manager.FirstName + " " + src.Manager.LastName));
-            CreateMap<CreateBookingDto, Booking>().ForSourceMember(x => x.FloorId, opt => opt.DoNotValidate());
+            CreateMap<CreateBookingDto, Booking>();
             CreateMap<Booking, EmployeeBookingDto>();
+            CreateMap<Booking, AdminBookingDto>();
+            CreateMap<Booking, ManagerBookingDto>();
         }
     }
 }

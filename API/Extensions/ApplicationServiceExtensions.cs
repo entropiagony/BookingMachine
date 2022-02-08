@@ -26,6 +26,7 @@ namespace API.Extensions
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IFloorService, FloorService>();
             services.AddScoped<IWorkPlaceService, WorkPlaceService>();
+            services.AddScoped<IEmailService, EmailService>();
             return services;
         }
     }

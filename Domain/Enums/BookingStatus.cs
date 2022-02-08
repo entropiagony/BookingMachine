@@ -10,6 +10,6 @@ namespace Domain.Enums
     {
         Pending,
         Approved,
-        Rejected
+        Declined
     }
 }

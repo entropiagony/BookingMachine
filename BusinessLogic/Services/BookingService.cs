@@ -56,6 +56,7 @@ namespace BusinessLogic.Services
                 throw new BadRequestException("You have already booked workplace for this date");
 
             var bookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
+            bookings = bookings.Where(x => x.FloorId == booking.FloorId);
 
             if (bookings.Any(x => x.WorkPlaceId == workPlace.Id))
                 throw new BadRequestException("This work place is already booked");
@@ -71,6 +72,46 @@ namespace BusinessLogic.Services
             throw new BadRequestException("Bad request");
         }
 
+        public async Task<AdminBookingDto> GetAdminBookingDto(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
+            if (employee == null)
+                throw new NotFoundException("Employee doesn't exist");
+
+            var manager = await unitOfWork.UserManager.FindByIdAsync(booking.ManagerId);
+            if (manager == null)
+                throw new NotFoundException("Manager doesn't exist");
+
+            var adminBookingDto = mapper.Map<AdminBookingDto>(booking);
+
+            adminBookingDto.ManagerFirstName = manager.FirstName;
+            adminBookingDto.ManagerLastName = manager.LastName;
+            adminBookingDto.EmployeeFirstName = employee.FirstName;
+            adminBookingDto.EmployeeLastName = employee.LastName;
+
+            return adminBookingDto;
+        }
+
+        public async Task<IEnumerable<AdminBookingDto>> GetAdminBookingDtos()
+        {
+            var bookings = await unitOfWork.BookingRepository.GetAllBookingsAsync();
+            var adminBookingDtos = mapper.Map<IList<Booking>, IList<AdminBookingDto>>(bookings);
+
+            for (int i = 0; i < adminBookingDtos.Count; i++)
+            {
+                adminBookingDtos[i].EmployeeFirstName = bookings[i].Employee.FirstName;
+                adminBookingDtos[i].EmployeeLastName = bookings[i].Employee.LastName;
+                adminBookingDtos[i].ManagerFirstName = bookings[i].Manager.FirstName;
+                adminBookingDtos[i].ManagerLastName = bookings[i].Manager.LastName;
+            }
+
+            return adminBookingDtos;
+        }
+
         public async Task<IEnumerable<EmployeeBookingDto>> GetEmployeeBookingsAsync(string employeeId)
         {
             var employee = await unitOfWork.UserManager.FindByIdAsync(employeeId);
@@ -81,6 +122,64 @@ namespace BusinessLogic.Services
             var bookingDtos = mapper.Map<IEnumerable<Booking>, IEnumerable<EmployeeBookingDto>>(bookings);
 
             return bookingDtos;
+        }
+
+        public async Task<string> GetIdOfBookingEmployee(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            return booking.EmployeeId;
+        }
+
+        public async Task<string> GetIdOfBookingManager(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            return booking.ManagerId;
+        }
+
+        public async Task<ManagerBookingDto> GetManagerBookingDto(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
+            if (employee == null)
+                throw new NotFoundException("Employee doesn't exist");
+
+            var managerBookingDto = mapper.Map<ManagerBookingDto>(booking);
+
+            managerBookingDto.EmployeeFirstName = employee.FirstName;
+            managerBookingDto.EmployeeLastName = employee.LastName;
+
+            return managerBookingDto;
+        }
+
+        public async Task<IEnumerable<ManagerBookingDto>> GetManagerPendingBookings(string managerId)
+        {
+            var manager = await unitOfWork.UserManager.FindByIdAsync(managerId);
+
+            if (manager == null)
+                throw new NotFoundException("User with this id doesnt exist");
+
+            if (!await unitOfWork.UserManager.IsInRoleAsync(manager, "Manager"))
+                throw new UnauthorizedException("You are not in manager role");
+
+            var bookings = await unitOfWork.BookingRepository.GetPendingManagerBookingsAsync(managerId);
+            var managerBookingDtos = mapper.Map<IList<Booking>, IList<ManagerBookingDto>>(bookings);
+
+            for (int i = 0; i < managerBookingDtos.Count; i++)
+            {
+                managerBookingDtos[i].EmployeeFirstName = bookings[i].Employee.FirstName;
+                managerBookingDtos[i].EmployeeLastName = bookings[i].Employee.LastName;
+            }
+
+            return managerBookingDtos;
         }
     }
 }

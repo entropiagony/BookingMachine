@@ -170,7 +170,7 @@ namespace BookingMachine.Tests
             A.CallTo(() => unitOfWork.FloorRepository.GetFloorAsync(bookingDto.FloorId)).Returns(floor);
             A.CallTo(() => unitOfWork.WorkPlaceRepository.GetWorkPlaceAsync(bookingDto.WorkPlaceId)).Returns(workPlace);
             A.CallTo(() => mapper.Map<Booking>(bookingDto)).Returns(booking);
-            
+            A.CallTo(() => unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking)).Returns(true);
 
             var sut = new BookingService(unitOfWork, mapper);
 
@@ -213,9 +213,11 @@ namespace BookingMachine.Tests
             var bookingDto = new CreateBookingDto { FloorId = 13, WorkPlaceId = 1, BookingDate = DateTime.Today };
             AppUser user = new AppUser { Id = userId, ManagerId = "EXISTING MANAGER ID" };
             Floor floor = new Floor { Id = bookingDto.FloorId };
-            WorkPlace workPlace = new WorkPlace { FloorId = floor.Id };
+            WorkPlace workPlace = new WorkPlace { FloorId = floor.Id, Id = 10 };
             var booking = new Booking();
-            var bookings = A.CollectionOfFake<Booking>(2);
+            var bookings = new List<Booking>();
+            bookings.Add(new Booking());
+            bookings.Add(new Booking());
             floor.WorkPlaces = A.CollectionOfDummy<WorkPlace>(10);
 
             A.CallTo(() => unitOfWork.UserManager.FindByIdAsync(userId)).Returns(user);
@@ -230,6 +232,101 @@ namespace BookingMachine.Tests
 
             var exception = await Assert.ThrowsAsync<BadRequestException>(() => sut.CreateBookingAsync(bookingDto, userId));
             Assert.Equal("Due to COVID-19 restrictions you cannot book this", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateBookingAsync_UnitOfWorkDoesntComplete_ThrowsBadRequestException()
+        {
+            var unitOfWork = A.Fake<IUnitOfWork>();
+            var mapper = A.Fake<IMapper>();
+            var userId = "EXISTING USER ID";
+            var bookingDto = new CreateBookingDto { FloorId = 13, WorkPlaceId = 1, BookingDate = DateTime.Today };
+            AppUser user = new AppUser { Id = userId, ManagerId = "EXISTING MANAGER ID" };
+            Floor floor = new Floor { Id = bookingDto.FloorId };
+            WorkPlace workPlace = new WorkPlace { FloorId = floor.Id, Id = 10 };
+            var booking = new Booking();
+            var bookings = new List<Booking>();
+            floor.WorkPlaces = A.CollectionOfDummy<WorkPlace>(10);
+
+            A.CallTo(() => unitOfWork.UserManager.FindByIdAsync(userId)).Returns(user);
+            A.CallTo(() => unitOfWork.FloorRepository.GetFloorAsync(bookingDto.FloorId)).Returns(floor);
+            A.CallTo(() => unitOfWork.WorkPlaceRepository.GetWorkPlaceAsync(bookingDto.WorkPlaceId)).Returns(workPlace);
+            A.CallTo(() => mapper.Map<Booking>(bookingDto)).Returns(booking);
+            A.CallTo(() => unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking)).Returns(false);
+            A.CallTo(() => unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate)).Returns(bookings);
+            A.CallTo(() => unitOfWork.Complete()).Returns(false);
+
+            var sut = new BookingService(unitOfWork, mapper);
+
+            var exception = await Assert.ThrowsAsync<BadRequestException>(() => sut.CreateBookingAsync(bookingDto, userId));
+            Assert.Equal("Bad request", exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateBookingAsync_ValidParameters_ReturnsEmployeeBookingDto()
+        {
+            var unitOfWork = A.Fake<IUnitOfWork>();
+            var mapper = A.Fake<IMapper>();
+            var userId = "EXISTING USER ID";
+            var bookingDto = new CreateBookingDto { FloorId = 13, WorkPlaceId = 1, BookingDate = DateTime.Today };
+            AppUser user = new AppUser { Id = userId, ManagerId = "EXISTING MANAGER ID" };
+            Floor floor = new Floor { Id = bookingDto.FloorId };
+            WorkPlace workPlace = new WorkPlace { FloorId = bookingDto.FloorId, Id = bookingDto.WorkPlaceId };
+            var booking = new Booking { BookingDate = bookingDto.BookingDate.Date };
+            var bookings = new List<Booking>();
+            var employeeBookingDto = new EmployeeBookingDto { Status = booking.Status, BookingDate = booking.BookingDate, WorkPlaceId = workPlace.Id };
+            floor.WorkPlaces = A.CollectionOfDummy<WorkPlace>(10);
+
+            A.CallTo(() => unitOfWork.UserManager.FindByIdAsync(userId)).Returns(user);
+            A.CallTo(() => unitOfWork.FloorRepository.GetFloorAsync(bookingDto.FloorId)).Returns(floor);
+            A.CallTo(() => unitOfWork.WorkPlaceRepository.GetWorkPlaceAsync(bookingDto.WorkPlaceId)).Returns(workPlace);
+            A.CallTo(() => mapper.Map<Booking>(bookingDto)).Returns(booking);
+            A.CallTo(() => unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking)).Returns(false);
+            A.CallTo(() => unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate)).Returns(bookings);
+            A.CallTo(() => unitOfWork.Complete()).Returns(true);
+            A.CallTo(() => mapper.Map<EmployeeBookingDto>(booking)).Returns(employeeBookingDto);
+
+            var sut = new BookingService(unitOfWork, mapper);
+
+            var result = await sut.CreateBookingAsync(bookingDto, userId);
+            Assert.Equal(bookingDto.BookingDate.Date, result.BookingDate);
+            Assert.Equal(bookingDto.WorkPlaceId, result.WorkPlaceId);
+            Assert.Equal(BookingStatus.Pending, result.Status);
+        }
+
+        [Fact]
+        public async Task GetIdOfBookingManager_BookingDoesntExist_ThrowsNotFoundException()
+        {
+            var unitOfWork = A.Fake<IUnitOfWork>();
+            var mapper = A.Fake<IMapper>();
+            var bookingId = 666;
+            Booking booking = null;
+
+            A.CallTo(() => unitOfWork.BookingRepository.GetBookingAsync(bookingId)).Returns(booking);
+
+            var sut = new BookingService(unitOfWork, mapper);
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => sut.GetIdOfBookingManager(bookingId));
+            Assert.Equal("Booking doesn't exist", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetIdOfBookingManager_ValidParameters_ReturnsManagerId()
+        {
+            var unitOfWork = A.Fake<IUnitOfWork>();
+            var mapper = A.Fake<IMapper>();
+            var bookingId = 666;
+            var managerId = "YOUR MANAGER ID";
+            Booking booking = new Booking { ManagerId = managerId };
+
+            A.CallTo(() => unitOfWork.BookingRepository.GetBookingAsync(bookingId)).Returns(booking);
+
+            var sut = new BookingService(unitOfWork, mapper);
+
+            var result = await sut.GetIdOfBookingManager(bookingId);
+
+            Assert.Equal(booking.ManagerId, result);
+            Assert.Equal(managerId, result);
         }
     }
 }

@@ -13,5 +13,8 @@ namespace Repository.Interfaces
         public Task<IEnumerable<Booking>> GetEmployeeBookingsAsync(string employeeId);
         public Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date);
         public Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking);
+        public Task<Booking> GetBookingAsync(int bookingId);
+        public Task<IList<Booking>> GetPendingManagerBookingsAsync(string managerId);
+        public Task<IList<Booking>> GetAllBookingsAsync();
     }
 }

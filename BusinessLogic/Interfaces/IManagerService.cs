@@ -10,5 +10,7 @@ namespace BusinessLogic.Interfaces
     public interface IManagerService
     {
         public Task<IEnumerable<ManagerDto>> GetManagers();
+        public Task ApproveBooking(int bookingId);
+        public Task DeclineBooking(int bookingId, string reason);
     }
 }

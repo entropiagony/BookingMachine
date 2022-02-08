@@ -1,0 +1,52 @@
+<div class="row">
+    <div class="col-9 no-padding" id="table-no-padding">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">WorkPlace Id</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Manager First Name</th>
+                    <th scope="col">Manager Last Name</th>
+                    <th scope="col">Employee First Name</th>
+                    <th scope="col">Employee Last Name</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let booking of bookings">
+
+                    <th scope="row">{{booking.id}}</th>
+                    <td>{{booking.workPlaceId}}</td>
+                    <td>{{booking.bookingDate | date}}</td>
+                    <td>{{booking.managerFirstName}}</td>
+                    <td>{{booking.managerLastName}}</td>
+                    <td>{{booking.employeeFirstName}}</td>
+                    <td>{{booking.employeeLastName}}</td>
+                    <td>{{booking.status}}</td>
+
+                </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+    <div class="col-3">
+        <h2 class="text-center text-primary mt-2">Live bookings:</h2>
+        <div *ngFor="let booking of liveBookings" class="card border-dark mb-3" style="max-width: 20rem;">
+            <div class="card-header">
+
+                New Booking Id {{booking.id}}
+
+            </div>
+            <div class="card-body text-dark">
+
+                Status: {{booking.status}}
+
+                <h5 class="card-title">Manager: {{booking.managerFirstName}} {{booking.managerLastName}}</h5>
+                <h5 class="card-title">Employee: {{booking.employeeFirstName}} {{booking.employeeLastName}}</h5>
+                <p class="card-title">Date: {{booking.bookingDate | date}}</p>
+            </div>
+        </div>
+    </div>
+</div>

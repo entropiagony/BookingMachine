@@ -1,0 +1,35 @@
+<h2 class="text-primary text-center" *ngIf="noBookings">You have no pending bookings! Go drink some coffee...</h2>
+<table *ngIf="!noBookings" class="table table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">WorkPlace Id</th>
+            <th scope="col">Date</th>
+            <th scope="col">Employee First Name</th>
+            <th scope="col">Employee Last Name</th>
+            <th scope="col">Status</th>
+            <th scope="col">
+                <input type="text" class="form-control" [(ngModel)]="reason" placeholder="Enter a reason to decline">
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let booking of bookings">
+
+            <th scope="row">{{booking.id}}</th>
+            <td>{{booking.workPlaceId}}</td>
+            <td>{{booking.bookingDate | date}}</td>
+            <td>{{booking.employeeFirstName}}</td>
+            <td>{{booking.employeeLastName}}</td>
+            <td>{{booking.status}}</td>
+            <td class="text-end">
+                <button [disabled]="reason === undefined" class="btn btn-warning" (click)="declineBooking(booking.id)" type="button">Decline Booking</button>
+            </td>
+            <td>
+                <button class="btn btn-success" (click)="approveBooking(booking.id)" type="button">Approve Booking</button>
+            </td>
+        </tr>
+
+
+    </tbody>
+</table>

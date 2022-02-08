@@ -25,6 +25,8 @@ import { AccountEditComponent } from './account/account-edit/account-edit.compon
 import { BookingComponent } from './booking/booking.component';
 import { DateInputComponent } from './forms/date-input/date-input.component';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { ManagerComponent } from './manager/manager.component';
+import { BookingMonitoringComponent } from './admin/booking-monitoring/booking-monitoring.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,9 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     RolesModalComponent,
     AccountEditComponent,
     BookingComponent,
-    DateInputComponent
+    DateInputComponent,
+    ManagerComponent,
+    BookingMonitoringComponent
   ],
   imports: [
     BrowserModule,

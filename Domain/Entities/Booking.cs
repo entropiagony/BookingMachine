@@ -12,8 +12,10 @@ namespace Domain.Entities
     {
         public int Id { get; set; }
         public int WorkPlaceId { get; set; }
-        public DateTime BookingDate { get; set; }
         public WorkPlace WorkPlace { get; set; }
+        public Floor Floor { get; set; }
+        public int FloorId { get; set; }
+        public DateTime BookingDate { get; set; }
         public string EmployeeId { get; set; }
         public string ManagerId { get; set; }
         [ForeignKey("EmployeeId")]

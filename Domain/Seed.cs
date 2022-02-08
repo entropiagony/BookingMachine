@@ -48,7 +48,7 @@ namespace Domain
         {
             if (await userManager.Users.AnyAsync()) return;
 
-            var userData = await System.IO.File.ReadAllTextAsync("Data/UserSeed.json");
+            var userData = await System.IO.File.ReadAllTextAsync("../Domain/UserSeed.json");
             var users = JsonSerializer.Deserialize<List<AppUser>>(userData);
             if (users == null) return;
 
