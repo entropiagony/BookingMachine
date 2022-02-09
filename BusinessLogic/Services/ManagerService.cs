@@ -40,11 +40,12 @@ namespace BusinessLogic.Services
                 throw new BadRequestException("This booking is already managed");
 
             var approvedBookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
+            approvedBookings = approvedBookings.Where(x => x.FloorId == booking.FloorId);
 
             if (approvedBookings.Any(x => x.WorkPlaceId == booking.WorkPlaceId))
                 throw new BadRequestException("This workplace is already taken, please decline");
 
-            if(approvedBookings.Count() >= floor.WorkPlaces.Count * 0.2)
+            if (approvedBookings.Count() >= floor.WorkPlaces.Count * 0.2)
                 throw new BadRequestException("Due to COVID-19 restrictions you cannot approve this booking");
 
             booking.Status = BookingStatus.Approved;
@@ -61,13 +62,14 @@ namespace BusinessLogic.Services
                 throw new BadRequestException("You must provide a reason to decline");
 
             var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
-            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
-                       
-            if (employee == null)
-                throw new NotFoundException("Employee with this booking id doesn't exist");
 
             if (booking == null)
                 throw new NotFoundException("Booking with this id doesn't exist");
+
+            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
+
+            if (employee == null)
+                throw new NotFoundException("Employee with this booking id doesn't exist");
 
             if (booking.Status != BookingStatus.Pending)
                 throw new BadRequestException("This booking is already managed");
@@ -76,7 +78,7 @@ namespace BusinessLogic.Services
 
             if (await unitOfWork.Complete())
             {
-                // await emailService.SendEmailAsync(employee.Email, $"Booking {bookingId} declined", reason);
+                await emailService.SendEmailAsync(employee.Email, $"Booking {bookingId} declined", reason);
                 return;
             }
 

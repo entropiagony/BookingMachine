@@ -16,6 +16,7 @@ import { User } from 'src/_models/user';
 export class BookingService {
   baseUrl = environment.apiUrl;
   hubUrl = environment.hubUrl;
+  private exceptionMessageRegularExpression = /(?<=HubException: ).+/;
   private hubConnection!: HubConnection;
   private employeeBookingsSource = new BehaviorSubject<EmployeeBooking[]>([]);
   private managerBookingsSource = new BehaviorSubject<ManagerBooking[]>([]);
@@ -99,15 +100,15 @@ export class BookingService {
   }
 
   async createBooking(bookingModel: any) {
-    return this.hubConnection.invoke("CreateBooking", bookingModel).catch(error => console.log(error));
+    return this.hubConnection.invoke("CreateBooking", bookingModel).catch(error => this.displayError(error));
   }
 
   async approveBooking(bookingId: number) {
-    return this.hubConnection.invoke("ApproveBooking", bookingId).catch(error => console.log(error));
+    return this.hubConnection.invoke("ApproveBooking", bookingId).catch(error => this.displayError(error));
   }
 
   async declineBooking(bookingId: number, reason: string) {
-    return this.hubConnection.invoke("DeclineBooking", bookingId, reason).catch(error => console.log(error));
+    return this.hubConnection.invoke("DeclineBooking", bookingId, reason).catch(error => this.displayError(error));
   }
 
   getEmployeeBookings() {
@@ -120,5 +121,11 @@ export class BookingService {
 
   getAdminBookings() {
     return this.http.get<AdminBooking[]>(this.baseUrl + "booking/admin");
+  }
+
+  private displayError(error: any) {
+    let serverError = error.toString();
+    let message = serverError.match(this.exceptionMessageRegularExpression);
+    this.toastr.error(message);
   }
 }

@@ -23,18 +23,18 @@ namespace BusinessLogic.Services
         {
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("Essence Zip", "essence.zip@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("Booking Machine", "paulsytko@yandex.ru"));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = subject;
             emailMessage.Body = new TextPart("Plain")
             {
-                Text = message
+                Text = "Reason: " + message
             };
 
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync("smtp.gmail.com", 465, true);
-                await client.AuthenticateAsync("essence.zip@gmail.com", config["EmailPassword"]);
+                await client.ConnectAsync("smtp.yandex.ru", 465, true);
+                await client.AuthenticateAsync("paulsytko", config["EmailPassword"]);
                 await client.SendAsync(emailMessage);
                 await client.DisconnectAsync(true);
             }

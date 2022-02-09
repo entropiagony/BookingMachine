@@ -51,34 +51,54 @@ namespace API.Hubs
         public async Task CreateBooking(CreateBookingDto createBookingDto)
         {
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var employeeBookingDto = await bookingService.CreateBookingAsync(createBookingDto, userId);
-            var adminBookingDto = await bookingService.GetAdminBookingDto(employeeBookingDto.Id);
-            var managerBookingDto = await bookingService.GetManagerBookingDto(employeeBookingDto.Id);
-            var managerId = await bookingService.GetIdOfBookingManager(employeeBookingDto.Id);
+            try
+            {
+                var employeeBookingDto = await bookingService.CreateBookingAsync(createBookingDto, userId);
+                var adminBookingDto = await bookingService.GetAdminBookingDto(employeeBookingDto.Id);
+                var managerBookingDto = await bookingService.GetManagerBookingDto(employeeBookingDto.Id);
+                var managerId = await bookingService.GetIdOfBookingManager(employeeBookingDto.Id);
 
-            await Clients.Caller.SendAsync("EmployeeNewBooking", employeeBookingDto);
-            await Clients.Group("AdminGroup").SendAsync("AdminNewBooking", adminBookingDto);
-            await Clients.Group($"Manager-{managerId}").SendAsync("ManagerNewBooking", managerBookingDto);
+                await Clients.Caller.SendAsync("EmployeeNewBooking", employeeBookingDto);
+                await Clients.Group("AdminGroup").SendAsync("AdminNewBooking", adminBookingDto);
+                await Clients.Group($"Manager-{managerId}").SendAsync("ManagerNewBooking", managerBookingDto);
+            }
+            catch (Exception ex)
+            {
+                throw new HubException(ex.Message);
+            }
+
         }
 
         [Authorize(Policy = "RequireManagerRole")]
         public async Task ApproveBooking(int bookingId)
         {
             var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
-
-            await managerService.ApproveBooking(bookingId);
-            await Clients.Group("AdminGroup").SendAsync("AdminBookingApproved", new { bookingId, employeeId });
-            await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingApproved", bookingId);
+            try
+            {
+                await managerService.ApproveBooking(bookingId);
+                await Clients.Group("AdminGroup").SendAsync("AdminBookingApproved", new { bookingId, employeeId });
+                await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingApproved", bookingId);
+            }
+            catch (Exception ex)
+            {
+                throw new HubException(ex.Message);
+            }
         }
 
         [Authorize(Policy = "RequireManagerRole")]
         public async Task DeclineBooking(int bookingId, string reason)
         {
             var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
-
-            await managerService.DeclineBooking(bookingId, reason);
-            await Clients.Group("AdminGroup").SendAsync("AdminBookingDeclined", new { bookingId, employeeId });
-            await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingDeclined", new { bookingId, reason });
+            try
+            {
+                await managerService.DeclineBooking(bookingId, reason);
+                await Clients.Group("AdminGroup").SendAsync("AdminBookingDeclined", new { bookingId, employeeId });
+                await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingDeclined", new { bookingId, reason });
+            }
+            catch (Exception ex)
+            {
+                throw new HubException(ex.Message);
+            }
         }
     }
 }
