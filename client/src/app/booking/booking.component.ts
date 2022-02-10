@@ -6,6 +6,7 @@ import { take } from 'rxjs';
 import { EmployeeBooking } from 'src/_models/employee-booking';
 import { Floor } from 'src/_models/floor';
 import { Manager } from 'src/_models/manager';
+import { Pagination } from 'src/_models/pagination';
 import { BookingService } from 'src/_services/booking.service';
 import { FloorService } from 'src/_services/floor.service';
 
@@ -22,6 +23,9 @@ export class BookingComponent implements OnInit {
   selectedFloor!: Floor;
   bookings: EmployeeBooking[] = [];
   noBookings = false;
+  pageNumber = 1;
+  pageSize = 10;
+  pagination!: Pagination;
 
   constructor(private floorService: FloorService, private toastr: ToastrService,
     private fb: FormBuilder, private bookingService: BookingService) { }
@@ -58,22 +62,30 @@ export class BookingComponent implements OnInit {
   }
 
   getBookings() {
-    this.bookingService.getEmployeeBookings().subscribe(bookings => {
-      this.bookings = bookings;
-      this.noBookings = bookings.length == 0;
+    this.bookingService.getEmployeeBookings(this.pageNumber, this.pageSize).subscribe(bookings => {
+      this.bookings = bookings.result;
+      this.noBookings = bookings.result.length == 0;
+      this.pagination = bookings.pagination;
     })
   }
 
   changeFloor(e: any) {
     let id = this.bookingForm.controls['floorId'].value;
+    let date = this.bookingForm.controls['bookingDate'].value
     this.selectedFloor = this.floors.find(x => x.id == id)!;
+    this.bookingForm.reset({ floorId: id, workPlaceId: this.selectedFloor.workPlaces[0].id, bookingDate: date });
   }
 
   listenToNewBookings() {
     this.bookingService.employeeBookings$.subscribe(bookings => {
-      if (bookings[bookings.length - 1])
-        this.bookings.push(bookings[bookings.length - 1]);
+      if (bookings[bookings.length - 1]) {
+        this.bookings.unshift(bookings[bookings.length - 1]);
+        this.pagination.totalItems++;
+      }
+      if (this.bookings.length > this.pageSize)
+        this.bookings.pop();
     })
+
   }
 
   listenToApprovedBookings() {
@@ -92,6 +104,13 @@ export class BookingComponent implements OnInit {
           element.status = "Declined";
       })
     })
+  }
+
+  pageChanges(event: any) {
+    if (this.pageNumber !== event.page) {
+      this.pageNumber = event.page;
+      this.getBookings();
+    }
   }
 
 }

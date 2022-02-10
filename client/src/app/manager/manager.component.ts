@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { take } from 'rxjs';
+
 import { ManagerBooking } from 'src/_models/manager-booking';
+import { Pagination } from 'src/_models/pagination';
 import { BookingService } from 'src/_services/booking.service';
 
 @Component({
@@ -13,18 +14,22 @@ export class ManagerComponent implements OnInit {
   noBookings = false;
   @Input()
   reason!: string;
+  pageNumber = 1;
+  pageSize = 10;
+  pagination!: Pagination;
 
   constructor(private bookingService: BookingService) { }
 
   ngOnInit(): void {
-    this.getPendingBookings();
+    this.getBookings();
     this.listenToNewBookings();
   }
 
-  getPendingBookings() {
-    this.bookingService.getManagerBookings().subscribe(bookings => {
-      this.bookings = bookings;
-      if (bookings.length == 0)
+  getBookings() {
+    this.bookingService.getManagerBookings(this.pageNumber, this.pageSize).subscribe(bookings => {
+      this.bookings = bookings.result;
+      this.pagination = bookings.pagination;
+      if (bookings.result.length == 0)
         this.noBookings = true;
     })
   }
@@ -47,11 +52,21 @@ export class ManagerComponent implements OnInit {
 
   listenToNewBookings() {
     this.bookingService.managerBookings$.subscribe(bookings => {
-      if (bookings[bookings.length - 1])
-        this.bookings.push(bookings[bookings.length - 1]);
-      if (this.noBookings)
-        this.noBookings = false;
+      if (bookings[bookings.length - 1]) {
+        this.pagination.totalItems++;
+        this.bookings.unshift(bookings[bookings.length - 1]);
+        this.noBookings ? false : true;
+      }
+      if (this.bookings.length > this.pageSize)
+        this.bookings.pop();
     })
+  }
+
+  pageChanges(event: any) {
+    if (this.pageNumber !== event.page) {
+      this.pageNumber = event.page;
+      this.getBookings();
+    }
   }
 
 }

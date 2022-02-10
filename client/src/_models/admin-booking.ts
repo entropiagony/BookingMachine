@@ -7,4 +7,5 @@ export interface AdminBooking {
     employeeLastName: string;
     managerFirstName: string;
     managerLastName: string;
+    floorNumber: string;
 }

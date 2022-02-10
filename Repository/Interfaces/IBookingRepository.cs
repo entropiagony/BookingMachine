@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Common.Pagination;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,11 @@ namespace Repository.Interfaces
     public interface IBookingRepository
     {
         public void CreateBooking(Booking booking);
-        public Task<IEnumerable<Booking>> GetEmployeeBookingsAsync(string employeeId);
+        public Task<PagedList<Booking>> GetEmployeeBookingsAsync(string employeeId, int pageNumber, int pageSize);
         public Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date);
         public Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking);
         public Task<Booking> GetBookingAsync(int bookingId);
-        public Task<IList<Booking>> GetPendingManagerBookingsAsync(string managerId);
-        public Task<IList<Booking>> GetAllBookingsAsync();
+        public Task<PagedList<Booking>> GetPendingManagerBookingsAsync(string managerId, int pageNumber, int pageSize);
+        public Task<PagedList<Booking>> GetAllBookingsAsync(int pageNumber, int pageSize);
     }
 }

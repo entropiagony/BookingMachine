@@ -9,6 +9,7 @@ import { AdminBooking } from 'src/_models/admin-booking';
 import { EmployeeBooking } from 'src/_models/employee-booking';
 import { ManagerBooking } from 'src/_models/manager-booking';
 import { User } from 'src/_models/user';
+import { getPaginatedResult, getPaginationHeader } from './paginationHelper';
 
 @Injectable({
   providedIn: 'root'
@@ -66,14 +67,15 @@ export class BookingService {
       this.approvedBookingIds$.pipe(take(1)).subscribe(() => {
         this.approvedBookingIdsSource.next(response.bookingId);
       })
-      this.toastr.success(`Booking Id ${response.bookingId} of employee with Id ${response.employeeId} got approved`);
+      this.toastr.success(`Booking Id ${response.bookingId} of employee ${response.userName} got approved`);
     })
 
     this.hubConnection.on("AdminBookingDeclined", (response) => {
       this.declinedBookingIds$.pipe(take(1)).subscribe(() => {
         this.declinedBookingIdsSource.next(response.bookingId);
       })
-      this.toastr.warning(`Booking Id ${response.bookingId} of employee with Id ${response.employeeId} got declined`);
+      this.toastr.warning(`Booking Id ${response.bookingId} of employee ${response.userName} got declined`);
+
     })
 
     this.hubConnection.on("EmployeeBookingApproved", (bookingId: number) => {
@@ -111,16 +113,19 @@ export class BookingService {
     return this.hubConnection.invoke("DeclineBooking", bookingId, reason).catch(error => this.displayError(error));
   }
 
-  getEmployeeBookings() {
-    return this.http.get<EmployeeBooking[]>(this.baseUrl + "booking/employee");
+  getEmployeeBookings(pageNumber: number, pageSize: number) {
+    let params = getPaginationHeader(pageNumber, pageSize);
+    return getPaginatedResult<EmployeeBooking[]>(this.baseUrl + "booking/employee", params, this.http);
   }
 
-  getManagerBookings() {
-    return this.http.get<ManagerBooking[]>(this.baseUrl + "booking/manager");
+  getManagerBookings(pageNumber: number, pageSize: number) {
+    let params = getPaginationHeader(pageNumber, pageSize);
+    return getPaginatedResult<ManagerBooking[]>(this.baseUrl + "booking/manager", params, this.http);
   }
 
-  getAdminBookings() {
-    return this.http.get<AdminBooking[]>(this.baseUrl + "booking/admin");
+  getAdminBookings(pageNumber: number, pageSize: number) {
+    let params = getPaginationHeader(pageNumber, pageSize);
+    return getPaginatedResult<AdminBooking[]>(this.baseUrl + "booking/admin", params, this.http);
   }
 
   private displayError(error: any) {

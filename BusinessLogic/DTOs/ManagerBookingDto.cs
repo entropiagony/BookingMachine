@@ -17,6 +17,7 @@ namespace BusinessLogic.DTOs
         public BookingStatus Status { get; set; }
         public string EmployeeFirstName { get; set; }
         public string EmployeeLastName { get; set; }
+        public int FloorNumber { get; set; }
 
     }
 }

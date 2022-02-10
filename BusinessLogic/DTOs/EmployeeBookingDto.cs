@@ -16,5 +16,6 @@ namespace BusinessLogic.DTOs
         public DateTime BookingDate { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public BookingStatus Status { get; set; }
+        public int FloorNumber { get; set; }
     }
 }

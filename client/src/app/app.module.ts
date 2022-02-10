@@ -27,6 +27,7 @@ import { DateInputComponent } from './forms/date-input/date-input.component';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { ManagerComponent } from './manager/manager.component';
 import { BookingMonitoringComponent } from './admin/booking-monitoring/booking-monitoring.component';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { BookingMonitoringComponent } from './admin/booking-monitoring/booking-m
     },
     ),
     FormsModule,
+    PaginationModule.forRoot(),
     BsDatepickerModule.forRoot(),
     ReactiveFormsModule,
     TabsModule.forRoot(),

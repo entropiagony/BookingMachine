@@ -5,4 +5,5 @@ export interface ManagerBooking{
     status: string;
     employeeFirstName: string;
     employeeLastName: string;
+    floorNumber: string;
 }

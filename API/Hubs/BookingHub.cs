@@ -2,6 +2,7 @@
 using BusinessLogic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Repository.Interfaces;
 using System.Security.Claims;
 
 namespace API.Hubs
@@ -11,11 +12,13 @@ namespace API.Hubs
     {
         private readonly IBookingService bookingService;
         private readonly IManagerService managerService;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BookingHub(IBookingService bookingService, IManagerService managerService)
+        public BookingHub(IBookingService bookingService, IManagerService managerService, IUnitOfWork unitOfWork)
         {
             this.bookingService = bookingService;
             this.managerService = managerService;
+            this.unitOfWork = unitOfWork;
         }
 
         public override async Task OnConnectedAsync()
@@ -72,11 +75,12 @@ namespace API.Hubs
         [Authorize(Policy = "RequireManagerRole")]
         public async Task ApproveBooking(int bookingId)
         {
-            var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
             try
             {
+                var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
+                var employee = await unitOfWork.UserManager.FindByIdAsync(employeeId);
                 await managerService.ApproveBooking(bookingId);
-                await Clients.Group("AdminGroup").SendAsync("AdminBookingApproved", new { bookingId, employeeId });
+                await Clients.Group("AdminGroup").SendAsync("AdminBookingApproved", new { bookingId, employee.UserName });
                 await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingApproved", bookingId);
             }
             catch (Exception ex)
@@ -88,11 +92,12 @@ namespace API.Hubs
         [Authorize(Policy = "RequireManagerRole")]
         public async Task DeclineBooking(int bookingId, string reason)
         {
-            var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
             try
             {
+                var employeeId = await bookingService.GetIdOfBookingEmployee(bookingId);
+                var employee = await unitOfWork.UserManager.FindByIdAsync(employeeId);
                 await managerService.DeclineBooking(bookingId, reason);
-                await Clients.Group("AdminGroup").SendAsync("AdminBookingDeclined", new { bookingId, employeeId });
+                await Clients.Group("AdminGroup").SendAsync("AdminBookingDeclined", new { bookingId, employee.UserName });
                 await Clients.Group($"Employee-{employeeId}").SendAsync("EmployeeBookingDeclined", new { bookingId, reason });
             }
             catch (Exception ex)

@@ -3,4 +3,5 @@ export interface EmployeeBooking{
     workPlaceId: number;
     bookingDate: Date;
     status: string;
+    floorNumber: string;
 }

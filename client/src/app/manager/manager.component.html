@@ -3,6 +3,7 @@
     <thead>
         <tr>
             <th scope="col">Id</th>
+            <th scope="col">Floor №</th>
             <th scope="col">WorkPlace Id</th>
             <th scope="col">Date</th>
             <th scope="col">Employee First Name</th>
@@ -17,6 +18,7 @@
         <tr *ngFor="let booking of bookings">
 
             <th scope="row">{{booking.id}}</th>
+            <td>{{booking.floorNumber}}</td>
             <td>{{booking.workPlaceId}}</td>
             <td>{{booking.bookingDate | date}}</td>
             <td>{{booking.employeeFirstName}}</td>
@@ -33,3 +35,8 @@
 
     </tbody>
 </table>
+<div class="d-flex justify-content-center" *ngIf="pagination">
+    <pagination [boundaryLinks]="true" [totalItems]="pagination.totalItems" [itemsPerPage]="pagination.itemsPerPage" [(ngModel)]="pagination.currentPage" (pageChanged)="pageChanges($event)" previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+
+    </pagination>
+</div>

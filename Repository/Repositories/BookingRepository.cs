@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Common.Pagination;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -25,9 +26,12 @@ namespace Repository.Repositories
             db.Bookings.Add(booking);
         }
 
-        public async Task<IList<Booking>> GetAllBookingsAsync()
+        public async Task<PagedList<Booking>> GetAllBookingsAsync(int pageNumber, int pageSize)
         {
-            return await db.Bookings.Include(x => x.Employee).ThenInclude(x => x.Manager).ToListAsync();
+            var bookings = db.Bookings.Include(x => x.Floor)
+                .Include(x => x.Employee).ThenInclude(x => x.Manager).OrderByDescending(x => x.Id).AsQueryable();
+
+            return await PagedList<Booking>.CreateAsync(bookings, pageNumber, pageSize);
         }
 
         public async Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date)
@@ -38,18 +42,24 @@ namespace Repository.Repositories
 
         public async Task<Booking> GetBookingAsync(int bookingId)
         {
-            return await db.Bookings.FirstOrDefaultAsync(x => x.Id == bookingId);
+            return await db.Bookings.Include(x => x.Floor).FirstOrDefaultAsync(x => x.Id == bookingId);
         }
 
-        public async Task<IEnumerable<Booking>> GetEmployeeBookingsAsync(string employeeId)
+        public async Task<PagedList<Booking>> GetEmployeeBookingsAsync(string employeeId, int pageNumber, int pageSize)
         {
-            return await db.Bookings.Where(x => x.EmployeeId == employeeId).ToListAsync();
+            var bookings = db.Bookings.Include(x => x.Floor).Where(x => x.EmployeeId == employeeId)
+                .OrderByDescending(x => x.Id).AsQueryable();
+
+            return await PagedList<Booking>.CreateAsync(bookings, pageNumber, pageSize);
         }
 
-        public async Task<IList<Booking>> GetPendingManagerBookingsAsync(string managerId)
+        public async Task<PagedList<Booking>> GetPendingManagerBookingsAsync(string managerId, int pageNumber, int pageSize)
         {
-            return await db.Bookings.Include(x => x.Employee)
-                .Where(x => x.Status == BookingStatus.Pending && x.ManagerId == managerId).ToListAsync();
+            var bookings = db.Bookings.Include(x => x.Employee).Include(x => x.Floor)
+                .Where(x => x.Status == BookingStatus.Pending && x.ManagerId == managerId)
+                .OrderByDescending(x => x.Id).AsQueryable();
+
+            return await PagedList<Booking>.CreateAsync(bookings, pageNumber, pageSize);
         }
 
         public async Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking)

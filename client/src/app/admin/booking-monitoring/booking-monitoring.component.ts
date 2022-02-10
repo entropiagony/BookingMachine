@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminBooking } from 'src/_models/admin-booking';
+import { Pagination } from 'src/_models/pagination';
 import { BookingService } from 'src/_services/booking.service';
 
 @Component({
@@ -10,19 +11,23 @@ import { BookingService } from 'src/_services/booking.service';
 export class BookingMonitoringComponent implements OnInit {
   bookings: AdminBooking[] = [];
   liveBookings: AdminBooking[] = [];
+  pageNumber = 1;
+  pageSize = 10;
+  pagination!: Pagination;
 
   constructor(private bookingService: BookingService) { }
 
   ngOnInit(): void {
-    this.getAllBookings();
+    this.getBookings();
     this.listenToApprovedBookings();
     this.listenToDeclinedBookings();
     this.listenToNewBookings();
   }
 
-  getAllBookings() {
-    this.bookingService.getAdminBookings().subscribe(bookings => {
-      this.bookings = bookings;
+  getBookings() {
+    this.bookingService.getAdminBookings(this.pageNumber, this.pageSize).subscribe(bookings => {
+      this.bookings = bookings.result;
+      this.pagination = bookings.pagination;
     })
   }
 
@@ -57,5 +62,12 @@ export class BookingMonitoringComponent implements OnInit {
       if (bookings[bookings.length - 1])
         this.liveBookings.push(bookings[bookings.length - 1]);
     });
+  }
+
+  pageChanges(event: any) {
+    if (this.pageNumber !== event.page) {
+      this.pageNumber = event.page;
+      this.getBookings();
+    }
   }
 }
