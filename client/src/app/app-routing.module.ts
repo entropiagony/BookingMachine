@@ -9,6 +9,7 @@ import { BookingComponent } from './booking/booking.component';
 import { HomeComponent } from './home/home.component';
 import { ManagerComponent } from './manager/manager.component';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { ReportsComponent } from './reports/reports.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,6 +29,10 @@ const routes: Routes = [
       },
       {
         path: 'manage', component: ManagerComponent, canActivate: [RoleGuard],
+        data: { roles: ['Manager'] }
+      },
+      {
+        path: 'manage/reports', component: ReportsComponent, canActivate: [RoleGuard],
         data: { roles: ['Manager'] }
       }
     ]

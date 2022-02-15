@@ -85,6 +85,7 @@ export class WorkplaceManagementComponent implements OnInit {
     this.floorService.deleteFloor(this.selectedFloor.id).subscribe(response => {
       this.toastr.success("Floor successfully deleted!");
       this.floors = this.floors.filter(x => x.id != this.selectedFloor.id);
+      this.workPlaceCount -= this.selectedFloor.workPlaces.length;
       this.selectedFloor = this.floors[0];
     })
   }

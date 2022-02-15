@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
-
 builder.Services.AddApplicationServices(config);
 builder.Services.AddIdentityServices(config);
 builder.Services.AddEndpointsApiExplorer();

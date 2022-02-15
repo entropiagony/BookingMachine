@@ -34,10 +34,10 @@ namespace Repository.Repositories
             return await PagedList<Booking>.CreateAsync(bookings, pageNumber, pageSize);
         }
 
-        public async Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date)
+        public async Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date, int floorId)
         {
             return await db.Bookings.Where(x => x.BookingDate.Date == date.Date
-            && x.Status == BookingStatus.Approved).ToListAsync();
+            && x.Status == BookingStatus.Approved && x.FloorId == floorId).ToListAsync();
         }
 
         public async Task<Booking> GetBookingAsync(int bookingId)

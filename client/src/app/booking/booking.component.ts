@@ -16,7 +16,6 @@ import { FloorService } from 'src/_services/floor.service';
   styleUrls: ['./booking.component.css']
 })
 export class BookingComponent implements OnInit {
-  @Output() cancelRegister = new EventEmitter();
   bookingForm!: FormGroup;
   validationErrors: string[] = [];
   floors: Floor[] = [];

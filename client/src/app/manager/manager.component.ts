@@ -57,7 +57,7 @@ export class ManagerComponent implements OnInit {
         this.bookings.unshift(bookings[bookings.length - 1]);
         this.noBookings ? false : true;
       }
-      if (this.bookings.length > this.pageSize)
+      if (this.bookings?.length > this.pageSize)
         this.bookings.pop();
     })
   }

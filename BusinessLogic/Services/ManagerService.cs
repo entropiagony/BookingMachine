@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Interfaces;
+using BusinessLogic.RabbitMQ;
 using Common.Exceptions;
 using Domain.Enums;
 using Repository.Interfaces;
@@ -17,12 +18,14 @@ namespace BusinessLogic.Services
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly IEmailService emailService;
+        private readonly IBus busControl;
 
-        public ManagerService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService)
+        public ManagerService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, IBus busControl)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.emailService = emailService;
+            this.busControl = busControl;
         }
 
         public async Task ApproveBooking(int bookingId)
@@ -39,8 +42,7 @@ namespace BusinessLogic.Services
             if (booking.Status != BookingStatus.Pending)
                 throw new BadRequestException("This booking is already managed");
 
-            var approvedBookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
-            approvedBookings = approvedBookings.Where(x => x.FloorId == booking.FloorId);
+            var approvedBookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate, floor.Id);
 
             if (approvedBookings.Any(x => x.WorkPlaceId == booking.WorkPlaceId))
                 throw new BadRequestException("This workplace is already taken, please decline");
@@ -51,7 +53,15 @@ namespace BusinessLogic.Services
             booking.Status = BookingStatus.Approved;
 
             if (await unitOfWork.Complete())
+            {
+                var reportApprovedDto = new ReportApprovedDto
+                {
+                    Id = booking.Id,
+                    ManagedDate = DateTime.UtcNow
+                };
+                await busControl.SendAsync("approve.queue", reportApprovedDto);
                 return;
+            }
 
             throw new BadRequestException("Failed to approve booking");
         }
@@ -79,6 +89,13 @@ namespace BusinessLogic.Services
             if (await unitOfWork.Complete())
             {
                 await emailService.SendEmailAsync(employee.Email, $"Booking {bookingId} declined", reason);
+                var reportDeclinedDto = new ReportDeclinedDto
+                {
+                    Id = booking.Id,
+                    ManagedDate = DateTime.UtcNow,
+                    Reason = reason
+                };
+                await busControl.SendAsync("decline.queue", reportDeclinedDto);
                 return;
             }
 

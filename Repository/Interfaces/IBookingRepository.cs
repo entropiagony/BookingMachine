@@ -12,7 +12,7 @@ namespace Repository.Interfaces
     {
         public void CreateBooking(Booking booking);
         public Task<PagedList<Booking>> GetEmployeeBookingsAsync(string employeeId, int pageNumber, int pageSize);
-        public Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date);
+        public Task<IEnumerable<Booking>> GetApprovedBookingsAsync(DateTime date, int floorId);
         public Task<bool> HasAlreadyBookedWorkPlace(AppUser user, Booking booking);
         public Task<Booking> GetBookingAsync(int bookingId);
         public Task<PagedList<Booking>> GetPendingManagerBookingsAsync(string managerId, int pageNumber, int pageSize);

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Interfaces;
+using BusinessLogic.RabbitMQ;
 using Common.Exceptions;
 using Common.Pagination;
 using Domain.Entities;
@@ -13,11 +14,13 @@ namespace BusinessLogic.Services
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly IBus busControl;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IBus busControl)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.busControl = busControl;
         }
 
         public async Task<EmployeeBookingDto> CreateBookingAsync(CreateBookingDto bookingDto, string userId)
@@ -51,9 +54,8 @@ namespace BusinessLogic.Services
             if (await unitOfWork.BookingRepository.HasAlreadyBookedWorkPlace(user, booking))
                 throw new BadRequestException("You have already booked workplace for this date");
 
-            var bookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate);
-            bookings = bookings.Where(x => x.FloorId == booking.FloorId);
-
+            var bookings = await unitOfWork.BookingRepository.GetApprovedBookingsAsync(booking.BookingDate, floor.Id);
+            
             if (bookings.Any(x => x.WorkPlaceId == workPlace.Id))
                 throw new BadRequestException("This work place is already booked");
 
@@ -67,6 +69,8 @@ namespace BusinessLogic.Services
             {
                 var employeeBooking = mapper.Map<EmployeeBookingDto>(booking);
                 employeeBooking.FloorNumber = floor.FloorNumber;
+                var reportDto = await GetReportDto(employeeBooking.Id);
+                await busControl.SendAsync("create.queue", reportDto);
                 return employeeBooking;
             }
 
@@ -79,10 +83,6 @@ namespace BusinessLogic.Services
 
             if (booking == null)
                 throw new NotFoundException("Booking doesn't exist");
-
-            var floor = await unitOfWork.FloorRepository.GetFloorAsync(booking.FloorId);
-            if (floor == null)
-                throw new NotFoundException("Can't find specified floor");
 
             var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
             if (employee == null)
@@ -100,6 +100,24 @@ namespace BusinessLogic.Services
             adminBookingDto.EmployeeLastName = employee.LastName;
 
             return adminBookingDto;
+        }
+
+        public async Task<ManagerBookingDto> GetManagerBookingDto(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
+            if (employee == null)
+                throw new NotFoundException("Employee doesn't exist");
+
+            var managerBookingDto = mapper.Map<ManagerBookingDto>(booking);
+
+            managerBookingDto.EmployeeFirstName = employee.FirstName;
+            managerBookingDto.EmployeeLastName = employee.LastName;
+
+            return managerBookingDto;
         }
 
         public async Task<PagedList<AdminBookingDto>> GetAdminBookingDtos(int pageNumber, int pageSize)
@@ -124,7 +142,7 @@ namespace BusinessLogic.Services
             if (employee == null)
                 throw new NotFoundException("Specified employee doesn't exist");
 
-            var bookings = await unitOfWork.BookingRepository.GetEmployeeBookingsAsync(employeeId , pageNumber, pageSize);
+            var bookings = await unitOfWork.BookingRepository.GetEmployeeBookingsAsync(employeeId, pageNumber, pageSize);
             var bookingDtos = mapper.Map<IList<Booking>, IList<EmployeeBookingDto>>(bookings);
 
             return new PagedList<EmployeeBookingDto>(bookingDtos, bookings.TotalCount, bookings.CurrentPage, bookings.PageSize);
@@ -148,33 +166,14 @@ namespace BusinessLogic.Services
             return booking.ManagerId;
         }
 
-        public async Task<ManagerBookingDto> GetManagerBookingDto(int bookingId)
-        {
-            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
-            if (booking == null)
-                throw new NotFoundException("Booking doesn't exist");
-
-            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
-            if (employee == null)
-                throw new NotFoundException("Employee doesn't exist");
-
-            var managerBookingDto = mapper.Map<ManagerBookingDto>(booking);
-
-            managerBookingDto.EmployeeFirstName = employee.FirstName;
-            managerBookingDto.EmployeeLastName = employee.LastName;
-
-            return managerBookingDto;
-        }
+        
 
         public async Task<PagedList<ManagerBookingDto>> GetManagerPendingBookings(string managerId, int pageNumber, int pageSize)
         {
             var manager = await unitOfWork.UserManager.FindByIdAsync(managerId);
 
             if (manager == null)
-                throw new NotFoundException("User with this id doesnt exist");
-
-            if (!await unitOfWork.UserManager.IsInRoleAsync(manager, "Manager"))
-                throw new UnauthorizedException("You are not in manager role");
+                throw new NotFoundException("Manager with this id doesnt exist");
 
             var bookings = await unitOfWork.BookingRepository.GetPendingManagerBookingsAsync(managerId, pageNumber, pageSize);
             var managerBookingDtos = mapper.Map<IList<Booking>, IList<ManagerBookingDto>>(bookings);
@@ -186,6 +185,36 @@ namespace BusinessLogic.Services
             }
 
             return new PagedList<ManagerBookingDto>(managerBookingDtos, bookings.TotalCount, bookings.CurrentPage, bookings.PageSize);
+        }
+
+        public async Task<ReportDto> GetReportDto(int bookingId)
+        {
+            var booking = await unitOfWork.BookingRepository.GetBookingAsync(bookingId);
+
+            if (booking == null)
+                throw new NotFoundException("Booking doesn't exist");
+
+            var floor = await unitOfWork.FloorRepository.GetFloorAsync(booking.FloorId);
+            if (floor == null)
+                throw new NotFoundException("Can't find specified floor");
+
+            var employee = await unitOfWork.UserManager.FindByIdAsync(booking.EmployeeId);
+            if (employee == null)
+                throw new NotFoundException("Employee doesn't exist");
+
+            var manager = await unitOfWork.UserManager.FindByIdAsync(booking.ManagerId);
+            if (manager == null)
+                throw new NotFoundException("Manager doesn't exist");
+
+            var reportDto = mapper.Map<ReportDto>(booking);
+
+            reportDto.ManagerFirstName = manager.FirstName;
+            reportDto.ManagerLastName = manager.LastName;
+            reportDto.EmployeeFirstName = employee.FirstName;
+            reportDto.EmployeeLastName = employee.LastName;
+            reportDto.CreatedDate = DateTime.UtcNow;
+
+            return reportDto;
         }
     }
 }

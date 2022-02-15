@@ -2,6 +2,7 @@
 using BusinessLogic.DTOs;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
+using BusinessLogic.Utilities;
 using Common.Exceptions;
 using Domain.Entities;
 using Domain.Enums;
@@ -24,7 +25,8 @@ namespace BookingMachine.Tests
         {
             var unitOfWork = A.Fake<IUnitOfWork>();
             var tokenService = A.Fake<ITokenService>();
-            var mapper = A.Fake<IMapper>();
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapperProfiles>());
+            var mapper = config.CreateMapper();
 
             var userId = "NON EXISTING USER ID";
             var updateUserDto = new UpdateUserDto();
@@ -44,7 +46,8 @@ namespace BookingMachine.Tests
         {
             var unitOfWork = A.Fake<IUnitOfWork>();
             var tokenService = A.Fake<ITokenService>();
-            var mapper = A.Fake<IMapper>();
+            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapperProfiles>());
+            var mapper = config.CreateMapper();
 
             var userId = "EXISTING USER ID";
             var updateUserDto = new UpdateUserDto();

@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.Interfaces;
+using BusinessLogic.RabbitMQ;
 using BusinessLogic.Services;
 using BusinessLogic.Utilities;
 using Domain;
@@ -27,6 +28,7 @@ namespace API.Extensions
             services.AddScoped<IFloorService, FloorService>();
             services.AddScoped<IWorkPlaceService, WorkPlaceService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddSingleton(sp => RabbitHutch.CreateBus("localhost"));
             return services;
         }
     }

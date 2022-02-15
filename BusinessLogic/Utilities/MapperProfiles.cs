@@ -25,6 +25,8 @@ namespace BusinessLogic.Utilities
             MapFrom(src => src.Floor.FloorNumber));
             CreateMap<Booking, ManagerBookingDto>().ForMember(dest => dest.FloorNumber, opt => opt.
             MapFrom(src => src.Floor.FloorNumber));
+            CreateMap<Booking, ReportDto>().ForMember(dest => dest.FloorNumber, opt => opt.
+            MapFrom(src => src.Floor.FloorNumber));
         }
     }
 }
