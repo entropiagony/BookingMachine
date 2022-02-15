@@ -18,9 +18,9 @@ export class ReportsComponent implements OnInit {
   dateRange!: Date[];
   reportForm!: FormGroup;
   bsConfig: Partial<BsDatepickerConfig>;
-  reports!: Report[];
+  reports: Report[] = [];
   pageNumber = 1;
-  pageSize = 3;
+  pageSize = 10;
 
   constructor(private floorService: FloorService, private fb: FormBuilder, private reportService: ReportService) {
     this.bsConfig = {

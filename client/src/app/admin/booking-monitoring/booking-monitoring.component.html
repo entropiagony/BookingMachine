@@ -1,4 +1,4 @@
-<h2 class="text-start text-primary mt-2 mb-2">Live bookings:</h2>
+<h2 *ngIf="liveBookings.length > 0" class="text-start text-primary mt-2 mb-2">Live bookings:</h2>
 <div *ngFor="let booking of liveBookings" class="card border-dark mb-3 me-3" style="max-width: 20rem; display: inline-block;">
     <div class="card-header">
 
